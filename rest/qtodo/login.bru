@@ -1,0 +1,19 @@
+meta {
+  name: login
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://localhost:8443/user/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "email": "sma@ooxxllllaxas.com",
+    "password": "string!A1",
+    "userGroup": "maxxsh"
+  }
+}
