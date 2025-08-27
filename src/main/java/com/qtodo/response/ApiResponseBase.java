@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -61,7 +62,7 @@ public class ApiResponseBase {
 		if ((response.newCookie != null || response.existingCookies != null) && response.status.equals(HttpStatus.OK)) {
 			var resp = ResponseEntity.status(response.status);
 			
-			Map<String, ResponseCookie> existingCookies = new HashMap();
+			Map<String, ResponseCookie> existingCookies = new HashMap<>();
 			
 			if (response.existingCookies != null) {
 
@@ -71,6 +72,8 @@ public class ApiResponseBase {
 								.path("/")
 								.secure(true)
 								.httpOnly(true)
+								.sameSite("None")
+								.maxAge(cookie.getMaxAge())
 								.value(cookie.getValue())
 								.build();
 						
@@ -78,13 +81,16 @@ public class ApiResponseBase {
 					}
 				}
 			}
-			
+
 			existingCookies.put(response.newCookie.getName(), response.getNewCookie());
 			
 			for(Map.Entry<String, ResponseCookie> ent : existingCookies.entrySet()) {
-				resp.header(HttpHeaders.SET_COOKIE, ent.getValue().toString());
+				resp.header(HttpHeaders.SET_COOKIE, ent.getValue().toString()); 
+				// cookies are only accepted by the browser if the frontend and backed are both on a secure context ie https and on a publicly verifiable domain
+				// else the cookies are rejected thus the need to serve as the static files from backed in case of localhost
+				// different ports conunt as different domains
 			}
-
+			
 			return resp.body(response);
 		}
 		return new ResponseEntity<>(response, response.status);

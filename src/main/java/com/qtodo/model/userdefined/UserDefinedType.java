@@ -37,6 +37,6 @@ public class UserDefinedType extends EntityBase{
     @CollectionTable(name = "user_defined_data", joinColumns = @JoinColumn(name = "user_defined_id"))
     @MapKeyColumn(name = "data_key")
     @Column(name = "data_value")
-    private Map<String, String> data;
+    Map<String, String> data;
 
 }

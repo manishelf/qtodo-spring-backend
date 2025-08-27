@@ -1,6 +1,8 @@
 package com.qtodo.controller;
 
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import com.qtodo.response.ValidationException;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 
 @RestController
@@ -34,41 +37,21 @@ public class UserController {
 	
 	
 	@PostMapping("/login")
-	ResponseEntity<UserLoginResponse> loginUser(@RequestBody UserLoginRequest loginCreds, HttpServletRequest request) throws ValidationException{
+	ResponseEntity<UserLoginResponse> loginUser(@RequestBody UserLoginRequest loginCreds, HttpServletRequest request, HttpServletResponse response) throws ValidationException{
 		UserLoginResponse loginResponse = userAuthService.loginUser(loginCreds);
         
-        ResponseCookie cookie = ResponseCookie.from("refresh_token_for_"+loginResponse.getUserDetails().getUserGroup()
-        		, loginResponse.getTokens().getRefreshToken())
-        		.path("/")
-        		.secure(true)
-        		.httpOnly(true)
-                .build();
-    
-        loginResponse.setNewCookie(cookie);
         loginResponse.setExistingCookies(request.getCookies());
-        
-        
         return ApiResponseBase.asWrapped(loginResponse);
 	}
 	
 	@PostMapping("/signup")
 	ResponseEntity<TokenResponse> signupUser(@RequestBody UserDto userDetails, HttpServletRequest request) throws ValidationException{
+		
 		var signupResponse = userAuthService.signupUser(userDetails);
         
-        ResponseCookie cookie = ResponseCookie.from("refresh_token_for_"+signupResponse.getUserGroup(), signupResponse.getRefreshToken())
-        		.path("/")
-        		.secure(true)
-        		.httpOnly(true)
-                .build();
-        
-        signupResponse.setNewCookie(cookie);
         signupResponse.setExistingCookies(request.getCookies());
-        System.out.println(signupResponse);
-    
-        var resp =  ApiResponseBase.asWrapped(signupResponse);
         
-        return resp;
-       
+        return ApiResponseBase.asWrapped(signupResponse);
 	}
 	
 	@GetMapping("/refresh")
@@ -78,10 +61,9 @@ public class UserController {
 			) throws ValidationException{
 		
 		
-		if(sessionToken == null) {
+		if(sessionToken == null || sessionToken.length()<8) {
 			throw ValidationException.failedFor("session_token", "not found");
 		}
-		
 		sessionToken = sessionToken.substring(7); //"Bearer "
 		
 		Cookie[] cookies = request.getCookies();
@@ -91,14 +73,6 @@ public class UserController {
 		String refreshToken = userAuthService.getRefreshTokenForUserGroupFromCookies(cookies, sessionToken);
 		
         var refreshResponse = userAuthService.refreshAuthToken(sessionToken, refreshToken);
-		
-        ResponseCookie cookie = ResponseCookie.from("refresh_token_for_"+refreshResponse.getUserGroup(), refreshResponse.getRefreshToken())
-        		.path("/")
-        		.secure(true)
-        		.httpOnly(true)
-                .build();
-       
-        refreshResponse.setNewCookie(cookie);
         refreshResponse.setExistingCookies(cookies);
         
         return ApiResponseBase.asWrapped(refreshResponse);
@@ -119,5 +93,15 @@ public class UserController {
 		var response = new ApiResponseBase("Logged out successfully!",HttpStatus.OK, request.getCookies(), clearedCookie);
 	
         return ApiResponseBase.asWrapped(response);
+	}
+	
+	
+	@GetMapping("/usergroups")
+	ResponseEntity<ApiResponseBase> getOpenUserGroupTitleList(){
+		List<String> res = userAuthService.getOpenUserGroupTitles();
+		
+		var response = new ApiResponseBase(res, HttpStatus.OK);
+		
+		return ApiResponseBase.asWrapped(response);
 	}
 }

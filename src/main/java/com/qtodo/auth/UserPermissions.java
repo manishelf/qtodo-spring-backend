@@ -8,5 +8,6 @@ public enum UserPermissions {
 	RENAME,
 	REMOVE,
 	LEAVE,
-	JOIN
+	JOIN,
+	SERVER_TOOLS
 }

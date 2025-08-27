@@ -38,4 +38,8 @@ public class UserGroup extends EntityBase {
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     List<UserEntity> owningUsers = new ArrayList();
+    
+    boolean open = true;
+    
+    boolean colaboration = false;
 }

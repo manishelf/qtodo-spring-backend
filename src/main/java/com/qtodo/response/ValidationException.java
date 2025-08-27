@@ -3,7 +3,7 @@ package com.qtodo.response;
 import lombok.Getter;
 
 @Getter
-public class ValidationException extends RuntimeException{
+public class ValidationException extends Exception{
 	
 	String field;
 	String reason;

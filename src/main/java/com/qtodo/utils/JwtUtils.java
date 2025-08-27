@@ -22,17 +22,19 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import lombok.Getter;
 
 @Component
+@Getter
 public class JwtUtils {
 
 	SecretKey key = Jwts.SIG.HS256.key().build();
 
 	@Value("${qtodo.app.jwtSessionExpirationMs}")
-	int jwtSessionExpirationMs;
+	long jwtSessionExpirationMs;
 
-	@Value("${qtodo.app.jwtSessionExpirationMs}")
-	int jwtRefreshExpirationMs;
+	@Value("${qtodo.app.jwtRefreshExpirationMs}")
+	long jwtRefreshExpirationMs;
 	
 	public TokenResponse generateTokenForUser(UserDto userDetails) {
 		
@@ -86,10 +88,10 @@ public class JwtUtils {
 	public Map<String, Object> getClaimsMap(UserDto userDetails) {
 		Map<String, Object> claims = new HashMap();
 
-		UserRoles roles[] = { UserRoles.AUTHOR, UserRoles.AUDIENCE };
+		UserRoles roles[] = { UserRoles.AUTHOR, UserRoles.AUDIENCE , UserRoles.ADMIN };
 
 		UserPermissions permissions[] = { UserPermissions.READ, UserPermissions.WRITE, UserPermissions.EDIT,
-				UserPermissions.DELETE };
+				UserPermissions.DELETE , UserPermissions.SERVER_TOOLS};
 
 		claims.put("email", userDetails.getEmail());
 		claims.put("user_group", userDetails.getUserGroup());
@@ -117,6 +119,15 @@ public class JwtUtils {
 	    } catch (JwtException e) {
 	        throw ValidationException.failedFor("token", "Failed to parse JWT token.");
 	    }
+	}
+
+	public boolean isTokenExpired(String token){
+		try {			
+			Claims claim = this.getUserClaimsFromJwtToken(token);
+		}catch(ValidationException ve) {
+			return true;
+		}
+		return false;
 	}
 
 }

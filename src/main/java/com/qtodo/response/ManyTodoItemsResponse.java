@@ -9,18 +9,18 @@ import com.qtodo.model.TodoItem;
 
 public class ManyTodoItemsResponse extends ApiResponseBase {
 	
-	List<TodoItem> items;
+	List<TodoItemDto> items;
 
 	public ManyTodoItemsResponse(HttpStatusCode status) {
 		super(status);
 	}
 
-	public ManyTodoItemsResponse(List<TodoItem> items, HttpStatusCode status) {
+	public ManyTodoItemsResponse(List<TodoItemDto> items, HttpStatusCode status) {
 		super(status);
 		this.items = items;
 	}
 
-	public ManyTodoItemsResponse(List<TodoItem> items, MultiValueMap<String, String> headers,
+	public ManyTodoItemsResponse(List<TodoItemDto> items, MultiValueMap<String, String> headers,
 			HttpStatusCode statusCode) {
 		super(headers, statusCode);
 		this.items = items;

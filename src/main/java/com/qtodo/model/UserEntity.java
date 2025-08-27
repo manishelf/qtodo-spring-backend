@@ -5,6 +5,7 @@ import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
@@ -29,12 +30,12 @@ public class UserEntity extends EntityBase {
 	@OneToMany
 	List<DocumentEntity> docs = new ArrayList<>();
 
-	@OneToMany(mappedBy = "owningUser")
-	List<TodoItem> todoItems;
+	@OneToMany(mappedBy = "owningUser", fetch = FetchType.EAGER)
+	List<TodoItem> todoItems = new ArrayList();
 	
 	@ManyToMany(mappedBy = "participantUsers")
-	List<UserGroup> participantInUserGroups;
+	List<UserGroup> participantInUserGroups = new ArrayList();
 	
 	@ManyToMany(mappedBy="owningUsers")
-	List<UserGroup> ownerOfUserGroups;
+	List<UserGroup> ownerOfUserGroups = new ArrayList();
 }

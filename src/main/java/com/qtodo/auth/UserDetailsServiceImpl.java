@@ -17,7 +17,7 @@ public class UserDetailsServiceImpl implements UserDetailsService{
 	UserRepo userRepo;
 	
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String username) {
 		
 		int i = username.indexOf("/usergroup/");
 		
@@ -27,7 +27,10 @@ public class UserDetailsServiceImpl implements UserDetailsService{
 		
 		UserEntity user = userRepo.getByEmailInUserGroup(email, userGroup);
 		
-		if(user == null) throw new ValidationException().failedFor("email", "no user with email "+email+" in usergroup "+userGroup);
+		if(user == null) {
+			var e = ValidationException.failedFor("email", "no user with email "+email+" in usergroup "+userGroup);
+			throw new UsernameNotFoundException(e.getMessage());
+		}	
 	
 		CustomUserDetails userDetails = new CustomUserDetails();
 		

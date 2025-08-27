@@ -2,6 +2,7 @@ package com.qtodo.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +15,8 @@ import com.qtodo.dao.TodoItemRepo;
 import com.qtodo.dto.SearchCriteria;
 import com.qtodo.model.Tag;
 import com.qtodo.model.TodoItem;
+import com.qtodo.response.TagDto;
+import com.qtodo.response.TodoItemDto;
 
 import jakarta.persistence.criteria.Predicate;
 
@@ -23,11 +26,11 @@ public class TodoItemSearchService {
 	@Autowired
 	private TodoItemRepo todoItemRepo;
 
-	public List<TodoItem> searchByCriteria(SearchCriteria query) {
+	public List<TodoItemDto> searchByCriteria(SearchCriteria query) {
 		Specification<TodoItem> spec = buildSpecification(query);
 		Sort sort = Sort.by(query.getSortByField().toArray(new String[0]));
 		Pageable pageable = PageRequest.of(query.getPageNo(), query.getLimit(), sort);
-		return todoItemRepo.findAll(spec);
+		return todoItemRepo.findAll(spec).stream().map(i->new TodoItemDto(i)).collect(Collectors.toList());
 	}
 
 	private Specification<TodoItem> buildSpecification(SearchCriteria query) {
@@ -108,10 +111,10 @@ public class TodoItemSearchService {
 		};
 	}
 
-	private List<String> getTagNames(List<Tag> tags) {
+	private List<String> getTagNames(List<TagDto> tags) {
 		List<String> tagNames = new ArrayList<>();
 		if (tags != null) {
-			for (Tag tag : tags) {
+			for (TagDto tag : tags) {
 				tagNames.add(tag.getName());
 			}
 		}

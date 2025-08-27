@@ -29,7 +29,6 @@ public class CustomUserDetails implements UserDetails {
 
 	@Override
 	public String getPassword() {
-		System.out.print(userEntity.getEncryptedPassword());
 		return userEntity.getEncryptedPassword();
 	}
 

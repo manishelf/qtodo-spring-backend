@@ -35,19 +35,27 @@ public class JwtAuthFilter extends OncePerRequestFilter{
     
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException, ValidationException {
-		
+			throws ServletException, IOException {
 		String authHeader = request.getHeader("Authorization");
         String token = null;
         String email = null;
         Claims claims = null;
         
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        
+        if (authHeader != null && authHeader.length()>7 && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            claims = jwtUtils.getUserClaimsFromJwtToken(token);
+            if(jwtUtils.isTokenExpired(token)) {
+            	filterChain.doFilter(request, response);
+            	return;
+            }
+            try {
+				claims = jwtUtils.getUserClaimsFromJwtToken(token);
+			} catch (ValidationException e) {
+				throw new ServletException(e.getMessage());
+			}
             email = claims.getSubject();
         }
-        
+       
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             
             String userGroup = (String) claims.get("user_group");
@@ -70,7 +78,7 @@ public class JwtAuthFilter extends OncePerRequestFilter{
     			return;
     		}
             
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userEntity, null, authorities);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userEntity, userGroup, authorities);
             
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 

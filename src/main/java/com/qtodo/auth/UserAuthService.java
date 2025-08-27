@@ -1,21 +1,26 @@
 package com.qtodo.auth;
 
+import java.sql.SQLException;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.qtodo.dto.UserDto;
 import com.qtodo.dto.UserLoginRequest;
+import com.qtodo.model.UserEntity;
+import com.qtodo.model.UserGroup;
 import com.qtodo.response.TokenResponse;
 import com.qtodo.response.UserLoginResponse;
 import com.qtodo.response.ValidationException;
 import com.qtodo.service.UserService;
 import com.qtodo.service.ValidationService;
-import com.qtodo.utils.CommonUtils;
 import com.qtodo.utils.JwtUtils;
 
 import io.jsonwebtoken.Claims;
@@ -49,8 +54,21 @@ public class UserAuthService {
 			throw ValidationException.failedFor("email", email + " email already in use in usergroup " + userGroup);
 
 		userService.addUser(userDetails);
+		
+		
+		var tokens = jwtUtils.generateTokenForUser(userDetails);
+        ResponseCookie cookie = ResponseCookie.from("refresh_token_for_"+ userGroup, tokens.getRefreshToken())
+        		.secure(true)
+        		.httpOnly(true)
+        		.maxAge(jwtUtils.getJwtRefreshExpirationMs())
+				.sameSite("None")
+                .build();
 
-		return jwtUtils.generateTokenForUser(userDetails);
+        
+        tokens.setNewCookie(cookie);
+        tokens.setResponseMessage("signed up for usergroup "+tokens.getUserGroup()+" successfully");
+        
+        return tokens;
 	}
 
 	public UserLoginResponse loginUser(UserLoginRequest loginCreds) throws ValidationException {
@@ -70,15 +88,32 @@ public class UserAuthService {
 		
 		CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 		
-		UserDto userDto = CommonUtils.basicUserDtoFromUserEntity(user.getUserEntity());
-
-		userDto.setUserGroup(userGroup);
+		UserDto userDto;
+		try {
+			userDto = userService.getUserDetailsForUserInUserGroup(user.getUserEntity(), userGroup);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ValidationException(e.getMessage());
+		}
 		
 		TokenResponse tokens = jwtUtils.generateTokenForUser(userDto);
 
 		UserLoginResponse response = new UserLoginResponse(HttpStatus.OK);
 		response.setUserDetails(userDto);
+		userDto.setAccessToken(tokens.getAccessToken());
 		response.setTokens(tokens);
+		
+		
+        ResponseCookie cookie = ResponseCookie.from("refresh_token_for_"+response.getUserDetails().getUserGroup()
+        		, response.getTokens().getRefreshToken())
+        		.secure(true)
+        		.httpOnly(true)
+        		.maxAge(jwtUtils.getJwtRefreshExpirationMs())
+				.sameSite("None")
+                .build();
+
+        response.setNewCookie(cookie);
+        response.setResponseMessage("logged in for usergroup "+response.getUserDetails().getUserGroup());
 
 		return response;
 	}
@@ -86,7 +121,7 @@ public class UserAuthService {
 	public TokenResponse refreshAuthToken(String expiredToken, String refreshToken) throws ValidationException {
 		
 		Claims refClaims = jwtUtils.getUserClaimsFromJwtToken(refreshToken);
-		
+
 		Claims claims = jwtUtils.getUserClaimsFromExpiredToken(expiredToken);
 		
 
@@ -101,7 +136,18 @@ public class UserAuthService {
 		userDto.setFirstName(firstName);
 		userDto.setLastName(lastName);
 
-		return jwtUtils.generateTokenForUser(userDto);
+		var tokens = jwtUtils.generateTokenForUser(userDto);
+		
+		 ResponseCookie cookie = ResponseCookie.from("refresh_token_for_"+tokens.getUserGroup(), tokens.getRefreshToken())
+        		.secure(true)
+        		.httpOnly(true)
+        		.maxAge(jwtUtils.getJwtRefreshExpirationMs())
+				.sameSite("None")
+                .build();
+       
+        tokens.setNewCookie(cookie);
+        
+        return tokens;
 	}
 
 	public String getRefreshTokenForUserGroupFromCookies(Cookie[] cookies, String sessionToken) throws ValidationException {
@@ -133,7 +179,26 @@ public class UserAuthService {
         		.path("/")
         		.secure(true)
         		.httpOnly(true)
+        		.maxAge(jwtUtils.getJwtRefreshExpirationMs())
+				.sameSite("None")
                 .build();
+	}
+
+	public List<String> getOpenUserGroupTitles() {
+		
+		return userService.getOpenUserGroupTitles();
+		
+	}
+	
+	public UserEntity getAuthenticatedUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return (UserEntity) authentication.getPrincipal();
+	}
+
+	public UserGroup getAuthenticatedUserUserGroup() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String userGroupTitle =  (String) authentication.getCredentials();
+		return userService.getUserGroupByTitle(userGroupTitle);
 	}
 
 }

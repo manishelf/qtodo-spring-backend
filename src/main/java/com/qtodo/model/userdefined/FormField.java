@@ -1,5 +1,6 @@
 package com.qtodo.model.userdefined;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import lombok.Getter;
@@ -16,5 +17,7 @@ public class FormField {
     @Embedded
     private FormFieldValidation validation;
     private String options;
+    
+    @Column(columnDefinition = "TEXT")
     private String defaultValue;
 }

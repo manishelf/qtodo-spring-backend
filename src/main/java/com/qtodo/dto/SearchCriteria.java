@@ -3,7 +3,7 @@ package com.qtodo.dto;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import com.qtodo.model.Tag;
+import com.qtodo.response.TagDto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,9 +20,9 @@ public class SearchCriteria {
 
 	Boolean setForReminder;
 
-	ArrayList<Tag> includeTags;
+	ArrayList<TagDto> includeTags;
 
-	ArrayList<Tag> excludeTags;
+	ArrayList<TagDto> excludeTags;
 
 	LocalDateTime[] creationTimestampBetween;
 

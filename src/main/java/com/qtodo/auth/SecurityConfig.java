@@ -2,12 +2,11 @@ package com.qtodo.auth;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -27,12 +26,19 @@ public class SecurityConfig {
     @Autowired
     JwtAuthFilter jwtAuthFilter;
     
-//    @Autowired
-//    RefTokenAuthFilter h2AuthFilter;
+    @Autowired
+    urlTokenAuthFilter urlAuthFilter;
     
     @Autowired
     UserDetailsServiceImpl userDetailsServiceImpl;
-
+    
+    @Value("${qtodo.app.frontend.host.domain}")
+    String frontendDomain;
+    
+ 	String[] allowPaths = {"/qtodo-h2-console/**","/swagger-ui/**", "/v3/api-docs/**",
+    			"/ang/**",
+    			"/up","/user/usergroups","/user/login", "/user/signup", "/user/refresh","/user/logout",
+    			};
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -51,34 +57,32 @@ public class SecurityConfig {
     }
     
 //    @Bean
-//    SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
+//    @Order(1)
+//    SecurityFilterChain urlTokenSecurityFilterChain(HttpSecurity http) throws Exception {
 //        http
 //             // This filter only applies to H2 console and checks if any refresh token available
-//        	.securityMatcher("/qtodo-h2-console/**")
+//        	.csrf(csrf -> csrf.disable())
+//        	.securityMatcher("/qtodo-h2-console/**","/swagger-ui/**", "/v3/api-docs/**") // h2 uses java serverlets which I cant intercept 
 //            .authorizeHttpRequests(authorize -> authorize
 //                    .anyRequest().authenticated()
 //                )
-//            .addFilterBefore(h2AuthFilter, UsernamePasswordAuthenticationFilter.class)                    
+//            .addFilterBefore(urlAuthFilter, UsernamePasswordAuthenticationFilter.class)                    
 //            .authenticationProvider(authenticationProvider())       
 //            .sessionManagement(session -> session
 //                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 //                )            
-//            .csrf(csrf -> csrf.disable())
-//            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+//            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
+//            .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 //
 //        return http.build();
-//    }
+//    }   
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain jwtSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf->csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers(
-                    		"/up","/user/login", "/user/signup", "/user/refresh",
-                    		"/qtodo-h2-console/**","/swagger-ui/**", "/v3/api-docs/**"
-                    		).permitAll()
+            		.requestMatchers(allowPaths).permitAll()
                     .anyRequest().authenticated()
                 )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)                    
@@ -96,14 +100,19 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+       
+        if(this.frontendDomain != null)
+        configuration.setAllowedOrigins(Arrays.asList(frontendDomain.split(",")));
+        else configuration.setAllowedOrigins(Arrays.asList("*"));
         
-        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));        
         
-        configuration.setAllowedMethods(Arrays.asList("*"));
-        
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
         
         configuration.setMaxAge(Duration.ofMinutes(5L));
+        
+        if(this.frontendDomain != null)
+        configuration.setAllowCredentials(true); // set the allowedOrigins to specific domains
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
