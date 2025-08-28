@@ -1,6 +1,6 @@
 package com.qtodo.service;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,25 +15,31 @@ public class TodoItemUpdateService extends TodoItemServiceBase {
 	@Autowired
 	TodoItemGetService getService;
 	
-	public String update(TodoItemDto forUpdate) throws ValidationException {
-		
-		Optional<TodoItem> existing = getService.getItem(forUpdate.getSubject());
+	@Autowired
+	TodoItemCreateService createService;
+	
+	public String update(List<TodoItemDto> forUpdateList) throws ValidationException {
 		
 		String responseMessage = "";
-		TodoItem item = forUpdate.toEntity();
-		if (existing.isPresent()) {
-			TodoItem exisitgItem = existing.get();
-			if (exisitgItem.getCreationTimestamp().isBefore(forUpdate.getCreationTimestamp())) {
-				responseMessage = "existing item updated";
+		for(TodoItemDto forUpdate : forUpdateList) {
+			List<TodoItem> existing = getService.getItem(forUpdate.getSubjectBeforUpdate());
+			
+			if (!existing.isEmpty()) {
+				TodoItem exisitgItem = existing.get(0);
+				if (exisitgItem.getCreationTimestamp().isBefore(forUpdate.getCreationTimestamp())) {
+					responseMessage = "existing item updated";
+					createService.saveOne(forUpdate, exisitgItem.getOwningUser(), exisitgItem.getOwningUserGroup());
+				} else {
+					responseMessage += "existing item is latest";
+					throw ValidationException.failedFor("update item", "item not the latest version, please refresh page to update item state");
+				}
 			} else {
-				responseMessage = "existing item is latest";
-				throw ValidationException.failedFor("update item", "item not the latest version, please refresh page to update item state");
+				responseMessage += "non existing item saved";
+				createService.saveOne(forUpdate);
 			}
-			item.setId(exisitgItem.getId());
-		} else {
-			responseMessage = "non existing item saved";
+			responseMessage += ", ";
 		}
-		this.todoItemRepo.save(item);
+		
 		return responseMessage;
 	}
 

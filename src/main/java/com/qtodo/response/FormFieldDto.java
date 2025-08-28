@@ -5,9 +5,11 @@ import com.qtodo.model.userdefined.FormField;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class FormFieldDto {
 	private String name;
@@ -31,7 +33,7 @@ public class FormFieldDto {
 	   this.defaultValue = f.getDefaultValue();
 	}
 
-   public FormField  toEntity() {
+   public FormField  store() {
 	   FormField ff = new FormField();
 	   ff.setName(name);
 	   ff.setLabel(label);
@@ -39,10 +41,12 @@ public class FormFieldDto {
 	   ff.setPlaceholder(placeholder);
 	   
 	   if(validation != null)
-	   ff.setValidation(validation.toEntity());
+	   ff.setValidation(validation.store());
 	   
 	   ff.setOptions(options);
 	   ff.setDefaultValue(defaultValue);
-	    return ff;
-   } 
+	   
+	   return ff;
+   }
+
 }

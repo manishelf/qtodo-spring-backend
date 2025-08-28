@@ -14,10 +14,8 @@ import com.qtodo.model.TodoItemKey;
 @Repository
 public interface TodoItemRepo extends JpaRepository<TodoItem, TodoItemKey>, JpaSpecificationExecutor<TodoItem> {
 
-	Optional<TodoItem> findBySubject(String subject);
-
 	@Query("SELECT i FROM TodoItem i WHERE i.subject = ?1AND i.owningUserGroup.groupTitle = ?2")
-	Optional<TodoItem> findBySubjectAndUserGroup(String subject, String userGroupTitle);
+	List<TodoItem> findBySubjectAndUserGroup(String subject, String userGroupTitle);
 
 	
 	@Query("SELECT i FROM TodoItem i WHERE i.owningUserGroup.groupTitle = ?1")

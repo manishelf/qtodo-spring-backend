@@ -9,12 +9,16 @@ import com.qtodo.model.TodoItem;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class TodoItemDto {
 	String subject;
+	
+	String subjectBeforUpdate;
 
 	String description;
 	
@@ -36,8 +40,11 @@ public class TodoItemDto {
 	
 	boolean deleted;
 
+	
+
 	public TodoItemDto(TodoItem itemEntity) {
 			this.subject = itemEntity.getSubject();
+			this.subjectBeforUpdate = this.subject;
 			this.description = itemEntity.getDescription();
 			
 			if(itemEntity.getTags() != null)
@@ -56,27 +63,4 @@ public class TodoItemDto {
 			this.updationTimestamp = itemEntity.getUpdationTimestamp();
 	}
 	
-	public TodoItem toEntity() {
-		TodoItem e = new TodoItem();
-		e.setSubject(subject);
-		e.setDescription(description);
-		
-		if(tags != null)
-		e.setTags(tags.stream().map(t->t.toEntity()).collect(Collectors.toList()));
-		
-		e.setCompletionStatus(completionStatus);
-		e.setSetForReminder(setForReminder);
-		e.setEventStartDate(eventStartDate);
-		e.setEventEndDate(eventEndDate);
-		e.setDeleted(deleted);
-		
-		if(userDefined!=null)
-		e.setUserDefined(userDefined.toEntity());
-		
-		e.setCreationTimestamp(creationTimestamp);
-		e.setUpdationTimestamp(updationTimestamp);
-		
-		return e;
-	}
-
 }

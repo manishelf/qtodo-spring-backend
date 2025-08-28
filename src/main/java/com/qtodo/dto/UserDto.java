@@ -1,13 +1,8 @@
 package com.qtodo.dto;
 
-import java.sql.Blob;
-import java.sql.SQLException;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.qtodo.model.DocumentEntity;
 import com.qtodo.model.UserEntity;
-import com.qtodo.response.ValidationException;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

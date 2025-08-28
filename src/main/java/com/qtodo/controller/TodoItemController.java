@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.qtodo.dto.SearchCriteria;
-import com.qtodo.dto.TodoItemSaveRequest;
+import com.qtodo.dto.ManyTodoItemCRUDRequest;
 import com.qtodo.model.userdefined.UserDefinedType;
 import com.qtodo.response.ApiResponseBase;
 import com.qtodo.response.ManyTodoItemsResponse;
@@ -48,14 +49,14 @@ public class TodoItemController {
 	UserDefinedType userDefined;
 
 	@PostMapping("/save")
-	public ApiResponseBase saveTodoItem(@RequestBody TodoItemSaveRequest itemSaveRequest) {
+	public ApiResponseBase saveTodoItem(@RequestBody ManyTodoItemCRUDRequest itemSaveRequest) {
+		var response = new ApiResponseBase(HttpStatus.OK);
 		if (itemSaveRequest.getItemList() != null) {
-			todoItemCreateService.saveAll(itemSaveRequest.getItemList());
+			var items = todoItemCreateService.saveAll(itemSaveRequest.getItemList());
+			response.setResponseMessage("Item Saved! - "+items.size());
 		}else {
 			return new ApiResponseBase(HttpStatus.NO_CONTENT);
 		}
-		var response = new ApiResponseBase(HttpStatus.OK);
-		response.setResponseMessage("Item Saved!");
 		return response;
 	}
 
@@ -78,7 +79,7 @@ public class TodoItemController {
 		var response = new ManyTodoItemsResponse(todoItemsList, code);
 		return response;
 	}
-
+	
 	@PostMapping("/search")
 	public ManyTodoItemsResponse searchTodoItems(@RequestBody SearchCriteria query) {
 		var todoItemsList = todoItemSearchService.searchByCriteria(query);
@@ -92,8 +93,30 @@ public class TodoItemController {
 	}
 
 	@PatchMapping("/update")
-	public	ApiResponseBase  updateTodoItem(@RequestBody TodoItemDto item) throws ValidationException {
-		String responseMessage = this.todoItemUpdateService.update(item);
+	public	ApiResponseBase  updateTodoItem(@RequestBody ManyTodoItemCRUDRequest updateItemsRequest) throws ValidationException {
+		
+		if(updateItemsRequest.getItemList().isEmpty()) return new ApiResponseBase(HttpStatus.NO_CONTENT);
+		
+		String responseMessage = this.todoItemUpdateService.update(updateItemsRequest.getItemList());
 		return new ApiResponseBase(responseMessage, HttpStatus.OK);
+	}
+	
+	@PostMapping("/delete")
+	public ApiResponseBase deleteTodoItems(@RequestBody ManyTodoItemCRUDRequest deleteItemsRequest) throws ValidationException {
+		
+		if(deleteItemsRequest.getItemList().isEmpty()) return new ApiResponseBase(HttpStatus.NO_CONTENT);
+		
+		deleteItemsRequest.getItemList().stream().forEach(item->{
+			item.setDeleted(true);
+		});
+		
+		this.todoItemUpdateService.update(deleteItemsRequest.getItemList());
+		
+		return new ApiResponseBase("deleted - "+deleteItemsRequest.getItemList().size(), HttpStatus.OK);
+	}
+
+	public ApiResponseBase addDocumentForUser() {
+		
+		return new ApiResponseBase(HttpStatus.OK);
 	}
 }

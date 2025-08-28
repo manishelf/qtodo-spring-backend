@@ -30,7 +30,7 @@ public class FormFieldValidationDto {
 		this.step = validation.getStep();
 	}
 
-	public FormFieldValidation toEntity() {
+	public FormFieldValidation store() {
 		FormFieldValidation fe = new FormFieldValidation();
 		fe.setRequire(require);
 		fe.setReadonly(readonly);

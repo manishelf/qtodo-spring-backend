@@ -1,6 +1,7 @@
 package com.qtodo.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -64,8 +65,8 @@ public class TodoItemGetService extends TodoItemServiceBase{
 		return items.stream().map(i->new TodoItemDto(i)).collect(Collectors.toList());
 	}
 	
-	public Optional<TodoItem> getItem(String subject){
-		Optional<TodoItem> item = Optional.of(null);
+	public List<TodoItem> getItem(String subject){
+		List<TodoItem> item = new ArrayList<>();
 		
 		UserEntity user = getAuthenticatedUser();
 		UserGroup userGroup = getUserGroup();
@@ -74,7 +75,10 @@ public class TodoItemGetService extends TodoItemServiceBase{
 			item = this.todoItemRepo.findBySubjectAndUserGroup(subject, userGroup.getGroupTitle());
 		}
 		else {
-			item = this.todoItemRepo.findBySubjectAndUserEmailAndUserGroup(subject, user.getEmail(), userGroup.getGroupTitle());
+			var opt = this.todoItemRepo.findBySubjectAndUserEmailAndUserGroup(subject, user.getEmail(), userGroup.getGroupTitle());
+			if(opt.isPresent()) {
+				item = Arrays.asList(opt.get());
+			}
 		}
 		
 		return item;

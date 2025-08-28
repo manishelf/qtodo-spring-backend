@@ -17,13 +17,15 @@ import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Setter
+@ToString
 public class UserDefinedType extends EntityBase{
 	
-	@OneToOne(mappedBy = "userDefined", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@OneToOne(mappedBy = "userDefined", cascade = {CascadeType.MERGE})
 	Tag tag;
 	
 	@OneToOne
@@ -37,6 +39,6 @@ public class UserDefinedType extends EntityBase{
     @CollectionTable(name = "user_defined_data", joinColumns = @JoinColumn(name = "user_defined_id"))
     @MapKeyColumn(name = "data_key")
     @Column(name = "data_value")
-    Map<String, String> data;
+    Map<String, byte[]> data;
 
 }
