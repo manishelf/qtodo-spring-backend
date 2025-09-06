@@ -1,7 +1,9 @@
 package com.qtodo.auth;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,10 +55,11 @@ public class UserAuthService {
 		if (exists)
 			throw ValidationException.failedFor("email", email + " email already in use in usergroup " + userGroup);
 
-		userService.addUser(userDetails);
+		UserEntity ue = userService.addUser(userDetails);
+		TokenResponse tokens = null;
 		
+		tokens = jwtUtils.generateTokenForUser(userDetails, getUserClaimsIfUgOwner(ue, userGroup));
 		
-		var tokens = jwtUtils.generateTokenForUser(userDetails);
         ResponseCookie cookie = ResponseCookie.from("refresh_token_for_"+ userGroup, tokens.getRefreshToken())
         		.secure(true)
         		.httpOnly(true)
@@ -69,6 +72,21 @@ public class UserAuthService {
         tokens.setResponseMessage("signed up for usergroup "+tokens.getUserGroup()+" successfully");
         
         return tokens;
+	}
+	
+	public Map<String, Object> getUserClaimsIfUgOwner(UserEntity ue, String ugTitle){
+		List<UserGroup> owns = ue.getOwnerOfUserGroups();
+		UserGroup currUg = userService.getUserGroupByTitle(ugTitle);
+		Map<String, Object> claims = jwtUtils.getGenericClaimsMap(new UserDto(ue, ugTitle,null));
+		
+		if(!owns.isEmpty() && owns.contains(currUg)) {
+			List<UserPermissions> permissions = (List<UserPermissions>) claims.get("permissions");
+			var newPermissions = new ArrayList<>(permissions);
+			newPermissions.add(UserPermissions.UG_OWNER);
+			claims.put("permissions", newPermissions);
+			
+		}	
+		return claims;
 	}
 
 	public UserLoginResponse loginUser(UserLoginRequest loginCreds) throws ValidationException {
@@ -87,16 +105,16 @@ public class UserAuthService {
 		
 		
 		CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-		
+		UserEntity ue = user.getUserEntity();
 		UserDto userDto;
 		try {
-			userDto = userService.getUserDetailsForUserInUserGroup(user.getUserEntity(), userGroup);
+			userDto = userService.getUserDetailsForUserInUserGroup(ue, userGroup);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new ValidationException(e.getMessage());
 		}
 		
-		TokenResponse tokens = jwtUtils.generateTokenForUser(userDto);
+		TokenResponse tokens = jwtUtils.generateTokenForUser(userDto, getUserClaimsIfUgOwner(ue, userGroup));
 
 		UserLoginResponse response = new UserLoginResponse(HttpStatus.OK);
 		response.setUserDetails(userDto);
@@ -193,7 +211,7 @@ public class UserAuthService {
 		return (UserEntity) authentication.getPrincipal();
 	}
 
-	public UserGroup getAuthenticatedUserUserGroup() {
+	public UserGroup getAuthenticatedUsersUserGroup() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String userGroupTitle =  (String) authentication.getCredentials();
 		return userService.getUserGroupByTitle(userGroupTitle);

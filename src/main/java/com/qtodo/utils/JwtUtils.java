@@ -1,7 +1,10 @@
 package com.qtodo.utils;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
@@ -35,12 +38,21 @@ public class JwtUtils {
 
 	@Value("${qtodo.app.jwtRefreshExpirationMs}")
 	long jwtRefreshExpirationMs;
+
+	static List<UserRoles> genericRoles = Collections.unmodifiableList(Arrays.asList(
+				UserRoles.AUTHOR, UserRoles.AUDIENCE , UserRoles.ADMIN
+			));
+
+	static List<UserPermissions> genericPermissions = Collections.unmodifiableList(Arrays.asList(
+				UserPermissions.READ, UserPermissions.WRITE, UserPermissions.EDIT,
+				UserPermissions.DELETE , UserPermissions.SERVER_TOOLS
+				));
 	
-	public TokenResponse generateTokenForUser(UserDto userDetails) {
+	public TokenResponse generateTokenForUser(UserDto userDetails, Map<String,Object> claims) {
 		
 		String sessionToken = Jwts.builder()
 				.subject(userDetails.getEmail())
-				.claims(getClaimsMap(userDetails))
+				.claims(claims)
 				.issuedAt(new Date())
 				.expiration(new Date((new Date()).getTime() + jwtSessionExpirationMs))
 				.signWith(key)
@@ -49,6 +61,10 @@ public class JwtUtils {
 		String refreshToken = issueRefreshTokenForUser(userDetails.getEmail(), userDetails.getUserGroup());
 		
 		return new TokenResponse(userDetails.getUserGroup(), sessionToken, refreshToken);
+	}
+	
+	public TokenResponse generateTokenForUser(UserDto userDetails) {
+		return generateTokenForUser(userDetails, getGenericClaimsMap(userDetails));
 	}
 
 	public Claims getUserClaimsFromJwtToken(String token) throws ValidationException {
@@ -85,19 +101,15 @@ public class JwtUtils {
 				.compact();
 	}
 
-	public Map<String, Object> getClaimsMap(UserDto userDetails) {
+	public Map<String, Object> getGenericClaimsMap(UserDto userDetails) {
 		Map<String, Object> claims = new HashMap();
 
-		UserRoles roles[] = { UserRoles.AUTHOR, UserRoles.AUDIENCE , UserRoles.ADMIN };
-
-		UserPermissions permissions[] = { UserPermissions.READ, UserPermissions.WRITE, UserPermissions.EDIT,
-				UserPermissions.DELETE , UserPermissions.SERVER_TOOLS};
 
 		claims.put("email", userDetails.getEmail());
 		claims.put("user_group", userDetails.getUserGroup());
 		claims.put("alias", userDetails.getAlias());
-		claims.put("roles", roles);
-		claims.put("permissions", permissions);
+		claims.put("roles", genericRoles);
+		claims.put("permissions", genericPermissions);
 
 		return claims;
 	}

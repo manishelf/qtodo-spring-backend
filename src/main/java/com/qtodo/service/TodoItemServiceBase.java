@@ -39,6 +39,6 @@ public class TodoItemServiceBase {
 	}
 	
 	protected UserGroup getUserGroup() {
-		return userAuthService.getAuthenticatedUserUserGroup();
+		return userAuthService.getAuthenticatedUsersUserGroup();
 	}
 }

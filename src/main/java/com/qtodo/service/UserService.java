@@ -37,7 +37,7 @@ public class UserService {
 	@Autowired
 	PasswordEncoder passwordEncoder;
 	
-	public Long addUser(UserDto userDetails) throws ValidationException {
+	public UserEntity addUser(UserDto userDetails) throws ValidationException {
 
 		var user = userDetails.toBasicEntity();
 
@@ -76,6 +76,8 @@ public class UserService {
 		if (ug == null) {
 			ug = new UserGroup();
 			ug.setGroupTitle(userGroup);
+			ug.getOwningUsers().add(user);
+			user.getOwnerOfUserGroups().add(ug);
 		}
 
 		ug.getParticipantUsers().add(user);
@@ -83,7 +85,7 @@ public class UserService {
 		userRepo.save(user);
 		userGroupRepo.save(ug);
 
-		return user.getId();
+		return user;
 
 	} 
 

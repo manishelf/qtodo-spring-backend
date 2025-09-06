@@ -5,8 +5,11 @@ import java.util.List;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.util.MultiValueMap;
 
-import com.qtodo.model.TodoItem;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class ManyTodoItemsResponse extends ApiResponseBase {
 	
 	List<TodoItemDto> items;
