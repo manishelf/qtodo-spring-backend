@@ -101,4 +101,9 @@ public class TodoItemCreateService extends TodoItemServiceBase {
 		t.setName(tag.getName());
 		return this.tagRepo.save(t);
 	}
+
+	public void hardDeleteItem(TodoItem existing) {
+		this.todoItemRepo.delete(existing);
+		this.todoItemRepo.flush();
+	}
 }

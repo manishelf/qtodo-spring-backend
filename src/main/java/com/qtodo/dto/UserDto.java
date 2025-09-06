@@ -14,9 +14,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class UserDto {
-	String firstName;
-
-	String lastName;
+	String alias;
 
 	String email;
 	
@@ -31,8 +29,7 @@ public class UserDto {
 	String accessToken;
 	
 	public UserDto(UserEntity ue, String userGroup, byte[] profilePicture) {
-		this.firstName = ue.getFirstName();
-		this.lastName = ue.getLastName();
+		this.alias = ue.getAlias();
 		this.email = ue.getEmail();
 		this.userGroup = userGroup;
 		this.profilePicture = profilePicture;
@@ -40,8 +37,7 @@ public class UserDto {
 
 	public UserEntity toBasicEntity() {
 		UserEntity ue = new UserEntity();
-		ue.setFirstName(firstName);
-		ue.setLastName(lastName);
+		ue.setAlias(alias);
 		ue.setEmail(email);
 		return ue;
 	}

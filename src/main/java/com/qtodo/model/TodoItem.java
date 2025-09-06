@@ -1,5 +1,6 @@
 package com.qtodo.model;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,11 +64,11 @@ public class TodoItem{
 
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
-	LocalDateTime creationTimestamp;
+	Instant creationTimestamp;
 	
 	@UpdateTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
-	LocalDateTime updationTimestamp;
+	Instant updationTimestamp;
 	
 	boolean deleted;
 }

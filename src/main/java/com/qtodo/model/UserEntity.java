@@ -18,9 +18,7 @@ import lombok.Setter;
 @Setter
 public class UserEntity extends EntityBase {
 
-	String firstName;
-
-	String LastName;
+	String alias;
 
 	@NotBlank
 	@Column(nullable = false)

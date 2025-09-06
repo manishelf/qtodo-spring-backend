@@ -1,5 +1,6 @@
 package com.qtodo.response;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +19,7 @@ import lombok.ToString;
 public class TodoItemDto {
 	String subject;
 	
-	String subjectBeforUpdate;
+	String subjectBeforeUpdate;
 
 	String description;
 	
@@ -34,9 +35,9 @@ public class TodoItemDto {
 	
 	UserDefinedTypeDto userDefined;
 	
-	LocalDateTime creationTimestamp;
+	Instant creationTimestamp;
 	
-	LocalDateTime updationTimestamp;
+	Instant updationTimestamp;
 	
 	boolean deleted;
 
@@ -44,7 +45,7 @@ public class TodoItemDto {
 
 	public TodoItemDto(TodoItem itemEntity) {
 			this.subject = itemEntity.getSubject();
-			this.subjectBeforUpdate = this.subject;
+			this.subjectBeforeUpdate = this.subject;
 			this.description = itemEntity.getDescription();
 			
 			if(itemEntity.getTags() != null)

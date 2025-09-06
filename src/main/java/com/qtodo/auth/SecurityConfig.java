@@ -105,7 +105,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(frontendDomain.split(",")));
         else configuration.setAllowedOrigins(Arrays.asList("*"));
         
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));        
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));        
         
         configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
         

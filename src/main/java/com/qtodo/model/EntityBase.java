@@ -1,6 +1,6 @@
 package com.qtodo.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -28,11 +28,11 @@ public class EntityBase {
 	
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
-	LocalDateTime creationTimestamp;
+	Instant creationTimestamp;
 	
 	@UpdateTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
-	LocalDateTime updationTimestamp;
+	Instant updationTimestamp;
 	
 	boolean deleted;
 }

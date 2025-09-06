@@ -19,20 +19,17 @@ public class TodoItemUpdateService extends TodoItemServiceBase {
 	TodoItemCreateService createService;
 	
 	public String update(List<TodoItemDto> forUpdateList) throws ValidationException {
-		
 		String responseMessage = "";
 		for(TodoItemDto forUpdate : forUpdateList) {
-			List<TodoItem> existing = getService.getItem(forUpdate.getSubjectBeforUpdate());
-			
+			List<TodoItem> existing = getService.getItem(forUpdate.getSubjectBeforeUpdate());
 			if (!existing.isEmpty()) {
-				TodoItem exisitgItem = existing.get(0);
-				if (exisitgItem.getCreationTimestamp().isBefore(forUpdate.getCreationTimestamp())) {
-					responseMessage = "existing item updated";
-					createService.saveOne(forUpdate, exisitgItem.getOwningUser(), exisitgItem.getOwningUserGroup());
-				} else {
-					responseMessage += "existing item is latest";
-					throw ValidationException.failedFor("update item", "item not the latest version, please refresh page to update item state");
+				TodoItem existingItem = existing.get(0);
+				responseMessage = "existing item updated";
+				forUpdate.setCreationTimestamp(existingItem.getCreationTimestamp());
+				if(!forUpdate.getSubject().equals(existingItem.getSubject())) {
+					existingItem.setDeleted(true);
 				}
+				createService.saveOne(forUpdate, existingItem.getOwningUser(), existingItem.getOwningUserGroup());
 			} else {
 				responseMessage += "non existing item saved";
 				createService.saveOne(forUpdate);

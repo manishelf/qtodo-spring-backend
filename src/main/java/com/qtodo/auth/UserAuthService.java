@@ -126,15 +126,13 @@ public class UserAuthService {
 		
 
 		String email = refClaims.getSubject();
-		String userGroup = (String) refClaims.get("user_group"); // to prevent mis-matched tokens to affect
-		String firstName = (String) refClaims.get("first_name");
-		String lastName = (String) claims.get("last_name");
+		String userGroup = (String) refClaims.get("user_group");
+		String alias = (String) refClaims.get("alias");
 
 		UserDto userDto = new UserDto();
 		userDto.setEmail(email);
 		userDto.setUserGroup(userGroup);
-		userDto.setFirstName(firstName);
-		userDto.setLastName(lastName);
+		userDto.setAlias(alias);
 
 		var tokens = jwtUtils.generateTokenForUser(userDto);
 		

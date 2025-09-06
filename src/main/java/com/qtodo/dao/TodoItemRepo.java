@@ -25,7 +25,7 @@ public interface TodoItemRepo extends JpaRepository<TodoItem, TodoItemKey>, JpaS
 	List<TodoItem> getByUserEmailAndGroupTitle(String email, String groupTitle);
 
 	
-	@Query("SELECT i FROM TodoItem i WHERE i.owningUser.email = ?1 AND i.owningUserGroup.groupTitle = ?2AND i.subject = ?1")
+	@Query("SELECT i FROM TodoItem i WHERE i.subject = ?1 AND i.owningUser.email = ?2 AND i.owningUserGroup.groupTitle = ?3")
 	Optional<TodoItem> findBySubjectAndUserEmailAndUserGroup(String subject, String email, String groupTitle);
 
 }

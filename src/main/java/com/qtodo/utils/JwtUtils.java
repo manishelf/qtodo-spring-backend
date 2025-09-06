@@ -95,8 +95,7 @@ public class JwtUtils {
 
 		claims.put("email", userDetails.getEmail());
 		claims.put("user_group", userDetails.getUserGroup());
-		claims.put("first_name", userDetails.getFirstName());
-		claims.put("last_name", userDetails.getLastName());
+		claims.put("alias", userDetails.getAlias());
 		claims.put("roles", roles);
 		claims.put("permissions", permissions);
 
