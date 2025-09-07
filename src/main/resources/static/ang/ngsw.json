@@ -1,0 +1,99 @@
+{
+  "configVersion": 1,
+  "timestamp": 1757250480728,
+  "index": "/ang/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/ang/canvasjs.min.js",
+        "/ang/fabric.min.js",
+        "/ang/favicon.ico",
+        "/ang/index.html",
+        "/ang/main-PEVDNJA4.js",
+        "/ang/manifest.webmanifest",
+        "/ang/polyfills-HGDOEU5L.js",
+        "/ang/styles-2NRLVWIP.css",
+        "/ang/themes.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/ang/android-chrome-192x192.png",
+        "/ang/android-chrome-512x512.png",
+        "/ang/apple-touch-icon.png",
+        "/ang/favicon-16x16.png",
+        "/ang/favicon-32x32.png",
+        "/ang/media/material-icons-JLIDJUWE.woff",
+        "/ang/media/material-icons-LEZCGFVT.woff2",
+        "/ang/media/material-icons-outlined-7BWLPMFK.woff2",
+        "/ang/media/material-icons-outlined-PCUTWIDZ.woff",
+        "/ang/media/material-icons-round-SLOHZIXU.woff",
+        "/ang/media/material-icons-round-WEHMTW23.woff2",
+        "/ang/media/material-icons-sharp-HCCYMPXE.woff2",
+        "/ang/media/material-icons-sharp-U4OLFP3G.woff",
+        "/ang/media/material-icons-two-tone-LCGWGE2N.woff",
+        "/ang/media/material-icons-two-tone-M5N5K6F5.woff2"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/ang/android-chrome-192x192.png": "04258ee7dbf7e8995d7b44db399fc3f0038b085d",
+    "/ang/android-chrome-512x512.png": "1eb0904572e45d5ad3433c04b64d7d0bfe56f08c",
+    "/ang/apple-touch-icon.png": "a11e41687f8505503f1dd08806e3fbcb3f46a289",
+    "/ang/canvasjs.min.js": "2061e7e672beb28deb5b2de6586e343b1a689026",
+    "/ang/fabric.min.js": "6b1429e05a41431b828da7628afa23f52f4bb467",
+    "/ang/favicon-16x16.png": "3d27328e1e19c342e5832b4c6741e7ed4106f158",
+    "/ang/favicon-32x32.png": "3dd2eca0b23ee80f6c3ff206cc6aae62eaf41afc",
+    "/ang/favicon.ico": "3df5bd793e7e65a484d314e0a8ef8ed0e8f43c17",
+    "/ang/index.html": "a5a49f577908336c6b6fbdb97e8058a20d0b8cac",
+    "/ang/main-PEVDNJA4.js": "6ca843d4a1769a38a8a00226955b8ea89009a7c0",
+    "/ang/manifest.webmanifest": "bf31baf91bdd2fcde24a45e3f2a1be33733c6f69",
+    "/ang/media/material-icons-JLIDJUWE.woff": "e4bb7c1e40d3febee58df963db276b2bf68c117b",
+    "/ang/media/material-icons-LEZCGFVT.woff2": "0bc0c675480d94ec7e8609dda6227f88c5d08d2c",
+    "/ang/media/material-icons-outlined-7BWLPMFK.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
+    "/ang/media/material-icons-outlined-PCUTWIDZ.woff": "b52ccd8fca4199d257b2a9fe377db29862f2853e",
+    "/ang/media/material-icons-round-SLOHZIXU.woff": "c41bfee3f01218e18d53f4f4cac00f385ac9fbb1",
+    "/ang/media/material-icons-round-WEHMTW23.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
+    "/ang/media/material-icons-sharp-HCCYMPXE.woff2": "cf1c7b4d066d18af44cf7bc664dd2e46652a3a30",
+    "/ang/media/material-icons-sharp-U4OLFP3G.woff": "829cb48cb2dd17ae5e425b82dc186eb670694a10",
+    "/ang/media/material-icons-two-tone-LCGWGE2N.woff": "02225d888afe4eebc7312b7432878dc8aef1f50f",
+    "/ang/media/material-icons-two-tone-M5N5K6F5.woff2": "296ff0bff395a77c2e33e7e31fffe73980bd93cf",
+    "/ang/polyfills-HGDOEU5L.js": "bf76ac291d7f51c1139b7edcf86b359a30c08c64",
+    "/ang/styles-2NRLVWIP.css": "f71e805de85ca2cc33a92f907970ceb6d430f86d",
+    "/ang/themes.css": "5f753f2de3de38bd590fc3ef1fa29862e0259dbc"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
