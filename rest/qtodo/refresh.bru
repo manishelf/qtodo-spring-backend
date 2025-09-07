@@ -1,0 +1,15 @@
+meta {
+  name: refresh
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://localhost:8443/user/refresh
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzbWFAb294eGxsbGxheGFzLmNvbSIsInVzZXJfZ3JvdXAiOiJtYXhsaXh4c2giLCJwZXJtaXNzaW9ucyI6WyJSRUFEIiwiV1JJVEUiLCJFRElUIiwiREVMRVRFIiwiU0VSVkVSX1RPT0xTIl0sInJvbGVzIjpbIkFVVEhPUiIsIkFVRElFTkNFIiwiQURNSU4iXSwibGFzdF9uYW1lIjoic3RyaW5nIiwiZmlyc3RfbmFtZSI6InN0cmluZyIsImVtYWlsIjoic21hQG9veHhsbGxsYXhhcy5jb20iLCJpYXQiOjE3NTYxNDA0ODMsImV4cCI6MTc1NjE0MDU3M30.6w-JulWzh7TaJKZYV8zo6INNn4iQIlUVgMIpHi9gQSs
+}

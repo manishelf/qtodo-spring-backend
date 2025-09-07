@@ -1,0 +1,19 @@
+meta {
+  name: login
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://localhost:8443/user/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email":"super@sxa.com",
+    "password":"Super@1",
+    "userGroup":"qtodo"
+  }
+}
