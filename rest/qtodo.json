@@ -1,0 +1,119 @@
+{
+  "info": {
+    "name": "qtodo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "login",
+      "event": [],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": null,
+        "description": "",
+        "url": {
+          "raw": "https://localhost:8443/user/login",
+          "protocol": "https",
+          "host": [
+            "localhost:8443"
+          ],
+          "path": [
+            "user",
+            "login"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\":\"super@sxa.com\",\n  \"password\":\"Super@1\",\n  \"userGroup\":\"qtodo\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "refresh",
+      "event": [],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzbWFAb294eGxsbGxheGFzLmNvbSIsInVzZXJfZ3JvdXAiOiJtYXhsaXh4c2giLCJwZXJtaXNzaW9ucyI6WyJSRUFEIiwiV1JJVEUiLCJFRElUIiwiREVMRVRFIiwiU0VSVkVSX1RPT0xTIl0sInJvbGVzIjpbIkFVVEhPUiIsIkFVRElFTkNFIiwiQURNSU4iXSwibGFzdF9uYW1lIjoic3RyaW5nIiwiZmlyc3RfbmFtZSI6InN0cmluZyIsImVtYWlsIjoic21hQG9veHhsbGxsYXhhcy5jb20iLCJpYXQiOjE3NTYxNDA0ODMsImV4cCI6MTc1NjE0MDU3M30.6w-JulWzh7TaJKZYV8zo6INNn4iQIlUVgMIpHi9gQSs",
+            "type": "string"
+          }
+        },
+        "description": "",
+        "url": {
+          "raw": "https://localhost:8443/user/refresh",
+          "protocol": "https",
+          "host": [
+            "localhost:8443"
+          ],
+          "path": [
+            "user",
+            "refresh"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "signup",
+      "event": [],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": null,
+        "description": "",
+        "url": {
+          "raw": "https://localhost:8443/user/signup",
+          "protocol": "https",
+          "host": [
+            "localhost:8443"
+          ],
+          "path": [
+            "user",
+            "signup"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"string\",\n  \"lastName\": \"string\",\n  \"email\": \"sma@ooxxllllaxas.com\",\n  \"password\": \"string!A1\",\n  \"userGroup\": \"maxlixxsh\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "qtodo-crud",
+      "item": []
+    },
+    {
+      "name": "bruno",
+      "event": []
+    }
+  ],
+  "variable": []
+}
