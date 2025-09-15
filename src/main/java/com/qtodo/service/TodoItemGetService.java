@@ -1,20 +1,29 @@
 package com.qtodo.service;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import com.qtodo.dto.DocumentDto;
 import com.qtodo.model.TodoItem;
 import com.qtodo.model.UserEntity;
 import com.qtodo.model.UserGroup;
 import com.qtodo.response.TodoItemDto;
+import com.qtodo.response.ValidationException;
+
 
 @Component
 public class TodoItemGetService extends TodoItemServiceBase{
@@ -37,7 +46,7 @@ public class TodoItemGetService extends TodoItemServiceBase{
 
 		UserEntity user = getAuthenticatedUser();
 		
-		UserGroup userGroup = getUserGroup();
+		UserGroup userGroup = getAuthenticatedUserGroup();
 		
 		List<TodoItem> items = null;
 		
@@ -68,7 +77,7 @@ public class TodoItemGetService extends TodoItemServiceBase{
 		List<TodoItem> item = new ArrayList<>();
 		
 		UserEntity user = getAuthenticatedUser();
-		UserGroup userGroup = getUserGroup();
+		UserGroup userGroup = getAuthenticatedUserGroup();
 		
 		if(userGroup.isColaboration()) {			
 			item = this.todoItemRepo.findBySubjectAndUserGroup(subject, userGroup.getGroupTitle());
@@ -81,5 +90,36 @@ public class TodoItemGetService extends TodoItemServiceBase{
 		}
 		
 		return item;
+	}
+	
+	public DocumentDto getDocument(String refUrl) throws ValidationException {
+		DocumentDto dto = new DocumentDto();
+		var doc = docRepo.findByRefUrl("/"+refUrl);
+		if(doc.isPresent()) {
+			var docEnt = doc.get();
+//			if(docEnt.getOwningUser().getEmail().equals(getAuthenticatedUser().getEmail())) { 
+				var ext = docEnt.getDataType().split("/")[1];
+				Path path = Paths.get(getFsDocUrl()).resolve(refUrl+'.'+ext).normalize();
+				try {
+					dto.setData(new UrlResource(path.toUri()));
+					dto.setInfo(docEnt.getInfo());
+					String contentType;
+					try {
+					    contentType = Files.probeContentType(path);
+					} catch (IOException e) {
+					    contentType = "application/octet-stream";
+					}
+					if(contentType == null) {
+						contentType = docEnt.getDataType();
+					}
+					dto.setDataType(contentType);
+					return dto;
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+					throw ValidationException.failedFor("document", "file - "+refUrl+" not found");
+				}
+//			}
+		}
+		return null;
 	}
 }

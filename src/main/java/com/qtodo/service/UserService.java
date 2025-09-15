@@ -1,12 +1,8 @@
 package com.qtodo.service;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.sql.rowset.serial.SerialBlob;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,25 +43,15 @@ public class UserService {
 			userGroup = "qtodo";
 		}
 
-		DocumentEntity profilePicEntity = new DocumentEntity();
-
-		byte[] profPicData = userDetails.getProfilePicture();
-
-		if (profPicData != null) {
-			try {
-				profilePicEntity.setData(new SerialBlob(profPicData));
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw ValidationException.failedFor("profile_pic", e.getMessage());
-			}
+		String profPic = userDetails.getProfilePicture();
+		if(profPic != null) {
+			DocumentEntity profilePicEntity = new DocumentEntity();
 			profilePicEntity.setInfo("profile_pic_" + userGroup);
 			profilePicEntity.setDataType("image");
+			profilePicEntity.setRefUrl(profPic);
+			docRepo.save(profilePicEntity);
+			user.getDocs().add(profilePicEntity);
 		}
-
-		docRepo.save(profilePicEntity);
-		String encodedEmail = URLEncoder.encode(userDetails.getEmail(), StandardCharsets.UTF_8);
-		profilePicEntity.setRefUrl("/user/" + encodedEmail + "/group/" + userGroup + "/profileImage");
-		user.getDocs().add(profilePicEntity);
 
 		String encPassword = passwordEncoder.encode(userDetails.getPassword());
 		user.setEmail(userDetails.getEmail());
@@ -96,12 +82,15 @@ public class UserService {
 		return false;
 	}
 
-	public UserDto getUserDetailsForUserInUserGroup(UserEntity user, String userGroup) throws SQLException {
+	public UserDto getUserDetailsForUserInUserGroup(UserEntity user, String userGroup) {
 		
-		DocumentEntity profPic = userRepo.getProfilePicByUserId(user.getId(), "profile_pic_"+userGroup);
-		var profPicData = profPic.getData();
-		UserDto userDetails = new UserDto(user, userGroup, profPicData.getBytes(0, (int)profPicData.length()));
-		
+		String profilePicUrl = null;
+		Optional<DocumentEntity> profPic = userRepo.getProfilePicByUserId(user.getId(), "profile_pic_"+userGroup);
+		if(profPic.isPresent()) {
+			var profPicUrl = profPic.get().getRefUrl();
+			profilePicUrl = "/item/doc"+profPicUrl;
+		}
+		UserDto userDetails = new UserDto(user, userGroup, profilePicUrl);
 		return userDetails;
 	}
 

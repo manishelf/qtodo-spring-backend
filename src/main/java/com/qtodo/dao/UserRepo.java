@@ -1,5 +1,7 @@
 package com.qtodo.dao;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -16,7 +18,7 @@ public interface UserRepo extends JpaRepository<UserEntity, Long>{
 	Long getIdByEncryptedEmail(String email);
 
 	@Query("SELECT d FROM UserEntity u JOIN u.docs d WHERE u.id = ?1 AND d.info = ?2")
-	DocumentEntity getProfilePicByUserId(Long id, String info);
+	Optional<DocumentEntity> getProfilePicByUserId(Long id, String info);
 	
 	@Query("SELECT u FROM UserEntity u JOIN u.participantInUserGroups ug WHERE u.email = ?1 AND ug.groupTitle = ?2")
 	UserEntity getByEmailInUserGroup(String email, String userGroupTitle);

@@ -28,4 +28,8 @@ public interface TodoItemRepo extends JpaRepository<TodoItem, TodoItemKey>, JpaS
 	@Query("SELECT i FROM TodoItem i WHERE i.subject = ?1 AND i.owningUser.email = ?2 AND i.owningUserGroup.groupTitle = ?3")
 	Optional<TodoItem> findBySubjectAndUserEmailAndUserGroup(String subject, String email, String groupTitle);
 
+	Optional<TodoItem> findByUuid(String uuid);
+
+
+	Optional<TodoItem> getByUuid(String uuid);
 }

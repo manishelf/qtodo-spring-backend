@@ -19,8 +19,10 @@ import lombok.ToString;
 public class TodoItemDto {
 	String subject;
 	
-	String subjectBeforeUpdate;
-
+	String uuid;
+	
+	long version;
+	
 	String description;
 	
 	List<TagDto> tags;
@@ -45,7 +47,8 @@ public class TodoItemDto {
 
 	public TodoItemDto(TodoItem itemEntity) {
 			this.subject = itemEntity.getSubject();
-			this.subjectBeforeUpdate = this.subject;
+			this.uuid = itemEntity.getUuid();
+			this.version = itemEntity.getVersion();
 			this.description = itemEntity.getDescription();
 			
 			if(itemEntity.getTags() != null)

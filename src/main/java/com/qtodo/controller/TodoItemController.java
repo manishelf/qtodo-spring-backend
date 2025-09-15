@@ -4,24 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.qtodo.dto.SearchCriteria;
+import com.qtodo.dto.DiffTodoItemResponse;
 import com.qtodo.dto.ManyTodoItemCRUDRequest;
+import com.qtodo.dto.SearchCriteria;
+import com.qtodo.dto.TodoItemDiffRequest;
 import com.qtodo.model.userdefined.UserDefinedType;
 import com.qtodo.response.ApiResponseBase;
 import com.qtodo.response.ManyTodoItemsResponse;
 import com.qtodo.response.TodoItemDto;
 import com.qtodo.response.ValidationException;
 import com.qtodo.service.TodoItemCreateService;
+import com.qtodo.service.TodoItemDiffService;
 import com.qtodo.service.TodoItemGetService;
 import com.qtodo.service.TodoItemSearchService;
 import com.qtodo.service.TodoItemUpdateService;
@@ -44,6 +53,9 @@ public class TodoItemController {
 	
 	@Autowired
 	TodoItemGetService todoItemGetService;
+	
+	@Autowired
+	TodoItemDiffService todoItemDiffService;
 
 	@OneToOne(cascade = CascadeType.PERSIST)
 	UserDefinedType userDefined;
@@ -58,6 +70,24 @@ public class TodoItemController {
 			return new ApiResponseBase(HttpStatus.NO_CONTENT);
 		}
 		return response;
+	}
+	
+	@PostMapping("/save/document")
+	public ApiResponseBase saveDocuments(
+				@RequestPart("file") MultipartFile docSaveRequest,
+				@RequestPart("fileType") String fileType,
+				@RequestPart("fileInfo") String fileInfo,
+				@RequestPart("fileName") String fileName
+			) throws ValidationException {
+		
+		String refUrl = this.todoItemCreateService.saveUserDoc(docSaveRequest, fileType, fileInfo, fileName);
+		
+		return new ApiResponseBase((Object)refUrl,HttpStatus.OK);
+	}
+	
+	@PostMapping("/getdiff")
+	public DiffTodoItemResponse getDiffTodoItems(@RequestBody TodoItemDiffRequest diffReq) {
+		return this.todoItemDiffService.processDiff(diffReq);
 	}
 
 	@GetMapping("/all")
@@ -78,6 +108,18 @@ public class TodoItemController {
 		}
 		var response = new ManyTodoItemsResponse(todoItemsList, code);
 		return response;
+	}
+	
+	@GetMapping("/doc/{refUrl}")
+	public ResponseEntity<Resource> getDocument(@PathVariable String refUrl) throws ValidationException {
+		var dto =  this.todoItemGetService.getDocument(refUrl);
+		
+		if(dto == null) return ResponseEntity.ofNullable(null).status(HttpStatus.NOT_FOUND).build();
+		
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(dto.getDataType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + dto.getData().getFilename() + "\"")
+                .body(dto.getData());
 	}
 	
 	@PostMapping("/search")

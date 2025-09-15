@@ -1,11 +1,8 @@
 package com.qtodo.model;
 
-import java.sql.Blob;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,11 +11,13 @@ import lombok.Setter;
 @Setter
 public class DocumentEntity extends EntityBase{
 	
+	@Column(unique = true, nullable = false)
 	String refUrl;
 	
 	String info;
 	
 	String dataType;
 	
-	Blob data;
+	@ManyToOne
+	UserEntity owningUser;
 }

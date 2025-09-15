@@ -1,6 +1,7 @@
 package com.qtodo.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,9 +22,9 @@ public class TodoItemUpdateService extends TodoItemServiceBase {
 	public String update(List<TodoItemDto> forUpdateList) throws ValidationException {
 		String responseMessage = "";
 		for(TodoItemDto forUpdate : forUpdateList) {
-			List<TodoItem> existing = getService.getItem(forUpdate.getSubjectBeforeUpdate());
-			if (!existing.isEmpty()) {
-				TodoItem existingItem = existing.get(0);
+			Optional<TodoItem> existing = todoItemRepo.getByUuid(forUpdate.getUuid());
+			if (existing.isPresent()) {
+				TodoItem existingItem = existing.get();
 				responseMessage = "existing item updated";
 				forUpdate.setCreationTimestamp(existingItem.getCreationTimestamp());
 				if(!forUpdate.getSubject().equals(existingItem.getSubject())) {

@@ -38,6 +38,7 @@ public class SecurityConfig {
  	String[] allowPaths = {"/qtodo-h2-console/**","/swagger-ui/**", "/v3/api-docs/**",
     			"/ang/**",
     			"/up","/user/usergroups","/user/login", "/user/signup", "/user/refresh","/user/logout",
+    			"/item/doc/*"
     			};
     @Bean
     PasswordEncoder passwordEncoder() {

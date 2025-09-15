@@ -8,6 +8,7 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.qtodo.model.userdefined.UserDefinedType;
 
 import jakarta.persistence.CascadeType;
@@ -21,6 +22,8 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -29,12 +32,19 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 @IdClass(TodoItemKey.class)
 public class TodoItem{
+	
+	@Column(unique = true, nullable = false)
+	@NotBlank
+	String uuid;
 	
 	@Id
 	@NotBlank
 	String subject;
+	
+	long version;
 
 	@Column(columnDefinition = "TEXT")
 	String description;
@@ -55,10 +65,12 @@ public class TodoItem{
 	
 	@Id
 	@ManyToOne(cascade = CascadeType.MERGE)
+	@JsonIgnore
 	UserEntity owningUser;
 	
 	@Id
 	@ManyToOne(cascade = CascadeType.MERGE)
+	@JsonIgnore
 	UserGroup owningUserGroup;
 	
 

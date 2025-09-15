@@ -20,8 +20,6 @@ public class UserGroup extends EntityBase {
     @NotBlank
     @Column(unique = true, nullable = false)
     String groupTitle;
-    
-    // ... other fields
 
     @ManyToMany
     @JoinTable(
@@ -42,4 +40,5 @@ public class UserGroup extends EntityBase {
     boolean open = true;
     
     boolean colaboration = false;
+
 }

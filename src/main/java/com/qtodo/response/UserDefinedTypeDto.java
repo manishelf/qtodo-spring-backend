@@ -19,7 +19,7 @@ public class UserDefinedTypeDto {
 	
 	FormSchemaDto formControlSchema;
 	
-    Map<String, byte[]> data;
+    Map<String, String> data;
     
     public UserDefinedTypeDto(UserDefinedType userDefined) {
     	this.tag = new TagDto(userDefined.getTag());

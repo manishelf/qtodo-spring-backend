@@ -21,14 +21,14 @@ public class UserDto {
 	@JsonProperty(access = Access.WRITE_ONLY)
 	String password;
 	
-	byte[] profilePicture;
+	String profilePicture;
 	
 	String userGroup;
 	
 	@JsonProperty(access = Access.READ_ONLY)
 	String accessToken;
 	
-	public UserDto(UserEntity ue, String userGroup, byte[] profilePicture) {
+	public UserDto(UserEntity ue, String userGroup, String profilePicture) {
 		this.alias = ue.getAlias();
 		this.email = ue.getEmail();
 		this.userGroup = userGroup;

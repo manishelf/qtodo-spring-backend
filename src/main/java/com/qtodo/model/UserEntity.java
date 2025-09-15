@@ -2,14 +2,15 @@ package com.qtodo.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,7 +30,7 @@ public class UserEntity extends EntityBase {
 	@OneToMany
 	List<DocumentEntity> docs = new ArrayList<>();
 
-	@OneToMany(mappedBy = "owningUser", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "owningUser")
 	List<TodoItem> todoItems = new ArrayList();
 	
 	@ManyToMany(mappedBy = "participantUsers", cascade = CascadeType.MERGE)
@@ -37,4 +38,5 @@ public class UserEntity extends EntityBase {
 	
 	@ManyToMany(mappedBy="owningUsers", cascade = CascadeType.MERGE)
 	List<UserGroup> ownerOfUserGroups = new ArrayList();
+
 }

@@ -107,12 +107,7 @@ public class UserAuthService {
 		CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 		UserEntity ue = user.getUserEntity();
 		UserDto userDto;
-		try {
-			userDto = userService.getUserDetailsForUserInUserGroup(ue, userGroup);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new ValidationException(e.getMessage());
-		}
+		userDto = userService.getUserDetailsForUserInUserGroup(ue, userGroup);
 		
 		TokenResponse tokens = jwtUtils.generateTokenForUser(userDto, getUserClaimsIfUgOwner(ue, userGroup));
 
