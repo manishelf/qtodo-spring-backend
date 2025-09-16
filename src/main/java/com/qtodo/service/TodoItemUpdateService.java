@@ -1,5 +1,7 @@
 package com.qtodo.service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,9 +28,11 @@ public class TodoItemUpdateService extends TodoItemServiceBase {
 			if (existing.isPresent()) {
 				TodoItem existingItem = existing.get();
 				responseMessage = "existing item updated";
-				forUpdate.setCreationTimestamp(existingItem.getCreationTimestamp());
 				if(!forUpdate.getSubject().equals(existingItem.getSubject())) {
 					existingItem.setDeleted(true);
+					var uuid = existingItem.getUuid();
+					existingItem.setUuid(
+							"stale-"+uuid+"-"+LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
 				}
 				createService.saveOne(forUpdate, existingItem.getOwningUser(), existingItem.getOwningUserGroup());
 			} else {

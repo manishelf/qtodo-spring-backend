@@ -43,16 +43,6 @@ public class UserService {
 			userGroup = "qtodo";
 		}
 
-		String profPic = userDetails.getProfilePicture();
-		if(profPic != null) {
-			DocumentEntity profilePicEntity = new DocumentEntity();
-			profilePicEntity.setInfo("profile_pic_" + userGroup);
-			profilePicEntity.setDataType("image");
-			profilePicEntity.setRefUrl(profPic);
-			docRepo.save(profilePicEntity);
-			user.getDocs().add(profilePicEntity);
-		}
-
 		String encPassword = passwordEncoder.encode(userDetails.getPassword());
 		user.setEmail(userDetails.getEmail());
 		user.setEncryptedPassword(encPassword);
@@ -70,6 +60,19 @@ public class UserService {
 		user.getParticipantInUserGroups().add(ug);
 		userRepo.save(user);
 		userGroupRepo.save(ug);
+		
+		String profPic = userDetails.getProfilePicture();
+		if(profPic != null) {
+			DocumentEntity profilePicEntity = new DocumentEntity();
+			profilePicEntity.setInfo("profile_pic_" + userGroup);
+			profilePicEntity.setDataType("image");
+			profilePicEntity.setRefUrl("/"+profPic);
+			profilePicEntity.setOwningUser(user);
+			profilePicEntity.setOwningUserGroup(ug);
+			docRepo.save(profilePicEntity);
+			
+			user.getDocs().add(profilePicEntity);
+		}
 
 		return user;
 

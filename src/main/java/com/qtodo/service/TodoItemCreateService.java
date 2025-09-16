@@ -139,7 +139,9 @@ public class TodoItemCreateService extends TodoItemServiceBase {
 	            docEntity.setInfo(fileInfo);
 	            docEntity.setRefUrl("/"+fileName);
 	            docEntity.setOwningUser(getAuthenticatedUser());
+	            docEntity.setOwningUserGroup(getAuthenticatedUserGroup());
             	docRepo.save(docEntity);
+            	
             	var ue = userRepo.getByEmailInUserGroup(email, userGroup);
             	ue.getDocs().add(docEntity); // as it is lazy
             	

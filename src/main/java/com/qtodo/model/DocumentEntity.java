@@ -20,4 +20,7 @@ public class DocumentEntity extends EntityBase{
 	
 	@ManyToOne
 	UserEntity owningUser;
+	
+	@ManyToOne
+	UserGroup owningUserGroup;
 }
