@@ -11,6 +11,7 @@ import com.qtodo.dao.FormSchemaRepo;
 import com.qtodo.dao.TagRepo;
 import com.qtodo.dao.TodoItemRepo;
 import com.qtodo.dao.UserDefinedTypesRepo;
+import com.qtodo.dao.UserGroupRepo;
 import com.qtodo.dao.UserRepo;
 import com.qtodo.model.UserEntity;
 import com.qtodo.model.UserGroup;
@@ -39,6 +40,9 @@ public class TodoItemServiceBase {
 	
 	@Autowired
 	protected UserRepo userRepo;
+	
+	@Autowired
+	protected UserGroupRepo userGroupRepo;
 	
 	@Autowired
 	protected UserAuthService userAuthService;

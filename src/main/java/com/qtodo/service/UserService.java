@@ -61,19 +61,6 @@ public class UserService {
 		userRepo.save(user);
 		userGroupRepo.save(ug);
 		
-		String profPic = userDetails.getProfilePicture();
-		if(profPic != null) {
-			DocumentEntity profilePicEntity = new DocumentEntity();
-			profilePicEntity.setInfo("profile_pic_" + userGroup);
-			profilePicEntity.setDataType("image");
-			profilePicEntity.setRefUrl("/"+profPic);
-			profilePicEntity.setOwningUser(user);
-			profilePicEntity.setOwningUserGroup(ug);
-			docRepo.save(profilePicEntity);
-			
-			user.getDocs().add(profilePicEntity);
-		}
-
 		return user;
 
 	} 
