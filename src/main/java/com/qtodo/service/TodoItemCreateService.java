@@ -94,8 +94,6 @@ public class TodoItemCreateService extends TodoItemServiceBase {
 		
 		ud = udtRepo.save(ud);
 		
-		tagEntity.get().setUserDefined(ud);
-		
 		return ud;
 	}
 

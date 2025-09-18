@@ -25,7 +25,7 @@ import lombok.ToString;
 @ToString
 public class UserDefinedType extends EntityBase{
 	
-	@OneToOne(mappedBy = "userDefined", cascade = {CascadeType.MERGE})
+	@OneToOne(cascade = {CascadeType.MERGE})
 	Tag tag;
 	
 	@OneToOne

@@ -21,6 +21,6 @@ public class FormSchema extends EntityBase{
     @CollectionTable(name = "form_fields", joinColumns = @JoinColumn(name = "form_schema_id"))
     List<FormField> fields;
 	
-	@OneToMany
+	@OneToMany(mappedBy="formSchema")
 	List<UserDefinedType> userDefined;
 }

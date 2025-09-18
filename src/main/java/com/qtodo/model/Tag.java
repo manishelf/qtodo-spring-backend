@@ -30,10 +30,6 @@ public class Tag{
 	@JsonIgnore
 	List<TodoItem> todoItems = new ArrayList();
 	
-	@OneToOne
-	@JsonIgnore
-	UserDefinedType userDefined;
-	
 	@Override
 	public String toString() {
 		return "(name="+this.name+")";
