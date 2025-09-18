@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,6 +37,9 @@ public class UserGroup extends EntityBase {
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     List<UserEntity> owningUsers = new ArrayList();
+    
+    @OneToMany(mappedBy = "owningUserGroup")
+    List<DocumentEntity> docs = new ArrayList();
     
     boolean open = true;
     

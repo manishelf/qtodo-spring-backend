@@ -27,7 +27,7 @@ public class UserEntity extends EntityBase {
 
 	String encryptedPassword;
 
-	@OneToMany
+	@OneToMany(mappedBy="owningUser")
 	List<DocumentEntity> docs = new ArrayList<>();
 
 	@OneToMany(mappedBy = "owningUser")
