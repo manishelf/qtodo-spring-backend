@@ -20,6 +20,7 @@ import com.qtodo.model.UserGroup;
 import com.qtodo.response.TokenResponse;
 import com.qtodo.response.UserLoginResponse;
 import com.qtodo.response.ValidationException;
+import com.qtodo.service.TodoItemServiceBase;
 import com.qtodo.service.UserService;
 import com.qtodo.service.ValidationService;
 import com.qtodo.utils.JwtUtils;
@@ -28,7 +29,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 
 @Service
-public class UserAuthService {
+public class UserAuthService{
 
 	@Autowired
 	ValidationService validationService;
@@ -76,15 +77,17 @@ public class UserAuthService {
 	public Map<String, Object> getUserClaimsIfUgOwner(UserEntity ue, String ugTitle){
 		List<UserGroup> owns = ue.getOwnerOfUserGroups();
 		UserGroup currUg = userService.getUserGroupByTitle(ugTitle);
-		Map<String, Object> claims = jwtUtils.getGenericClaimsMap(new UserDto(ue, ugTitle,null));
+		
+		Map<String, Object> claims = jwtUtils.getGenericClaimsMap(new UserDto(ue, currUg, null));
 		
 		if(!owns.isEmpty() && owns.contains(currUg)) {
 			List<UserPermissions> permissions = (List<UserPermissions>) claims.get("permissions");
 			var newPermissions = new ArrayList<>(permissions);
 			newPermissions.add(UserPermissions.UG_OWNER);
 			claims.put("permissions", newPermissions);
-			
 		}	
+		claims.put("user_group_colaboration",currUg.isColaboration());
+		claims.put("user_group_open",currUg.isOpen());
 		return claims;
 	}
 
@@ -139,12 +142,17 @@ public class UserAuthService {
 
 		String email = refClaims.getSubject();
 		String userGroup = (String) refClaims.get("user_group");
+		boolean userGroupColab = (boolean) refClaims.get("user_group_colaboration");
+		boolean userGroupOpen = (boolean) refClaims.get("user_group_open");
 		String alias = (String) refClaims.get("alias");
 
 		UserDto userDto = new UserDto();
 		userDto.setEmail(email);
 		userDto.setUserGroup(userGroup);
 		userDto.setAlias(alias);
+		
+		userDto.setUserGroupColaboration(userGroupColab);
+		userDto.setUserGroupOpen(userGroupOpen);
 
 		var tokens = jwtUtils.generateTokenForUser(userDto);
 		
