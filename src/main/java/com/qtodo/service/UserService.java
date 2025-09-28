@@ -80,7 +80,8 @@ public class UserService {
 			var profPicUrl = profPic.get().getRefUrl();
 			profilePicUrl = "/item/doc"+profPicUrl;
 		}
-		UserDto userDetails = new UserDto(user, userGroup, profilePicUrl);
+		UserGroup ug = userGroupRepo.getByGroupTitle(userGroup);
+		UserDto userDetails = new UserDto(user, ug, profilePicUrl);
 		return userDetails;
 	}
 

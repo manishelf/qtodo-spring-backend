@@ -1,13 +1,17 @@
 package com.qtodo.auth;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.qtodo.dao.UserRepo;
 import com.qtodo.model.UserEntity;
@@ -22,7 +26,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-public class urlTokenAuthFilter {
+public class urlTokenAuthFilter extends OncePerRequestFilter {
 
 	@Autowired
 	JwtUtils jwtUtils;
@@ -44,7 +48,7 @@ public class urlTokenAuthFilter {
 		
 		if(cookies != null && cookies.length>0 && token == null) {
 			for(Cookie cookie : cookies) {
-				if(cookie.getName().equals("token_for_external")) {
+				if(cookie.getName().equals("token_for_url")) {
 					token = cookie.getValue();
 				}
 			}
@@ -84,24 +88,41 @@ public class urlTokenAuthFilter {
 			
 			if (permissions != null) {
 				for(var perm: permissions) {
-					if(perm.equals("SERVER_TOOLS")) {
+					if(perm.equals(UserPermissions.SERVER_TOOLS.toString()) 
+						|| perm.equals(UserPermissions.COLAB.toString())) {
 						hasPermission = true;
 					}
 				}
 			}
 			
 			if(hasPermission) {
-				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userEntity, null, null);
+	            List<String> roles = (List<String>) claims.get("roles");
+	            
+	            
+	            List<GrantedAuthority> authorities = new ArrayList<>();
+	            
+	            if (roles != null) {
+	                roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
+	            }
+	            
+	            if (permissions != null) {
+	                permissions.forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission)));
+	            }
+
+
+				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+						new CustomUserDetails(userEntity, userGroup),
+						null, authorities);
 	            
 	            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 	                
 	            SecurityContextHolder.getContext().setAuthentication(authToken);
 	            		
-	            Cookie cookie = new Cookie("token_for_external",token);
+	            Cookie cookie = new Cookie("token_for_url",token);
 	            cookie.setHttpOnly(true);
 	            cookie.setSecure(true);
-	            cookie.setMaxAge(3000);
-	            cookie.setPath("/");
+	            cookie.setMaxAge(jwtUtils.getJwtSessionExpirationMs());
+	            cookie.setPath(request.getRequestURI().split("\\?sessionToken")[0]);
 	            
 	            response.addCookie(cookie);
 			}

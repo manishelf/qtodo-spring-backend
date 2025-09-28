@@ -18,6 +18,8 @@ public class CustomUserDetails implements UserDetails {
 
 	UserEntity userEntity;
 	
+	String userGroup;
+	
 	@Autowired
 	JwtUtils jwtUtils;
 	
@@ -37,12 +39,24 @@ public class CustomUserDetails implements UserDetails {
 		return userEntity.getEmail();
 	}
 	
+	public String getUserEmail() {
+		return userEntity.getEmail();
+	}
+	
+	public String getUserAlias() {
+		return userEntity.getAlias();
+	}
 	
 	public CustomUserDetails() {
 	}
 	
 	public CustomUserDetails(UserEntity userEntity) {
 		this.userEntity = userEntity;
+	}
+	
+	public CustomUserDetails(UserEntity userEntity, String userGroup){
+		this.userEntity = userEntity;
+		this.userGroup = userGroup;
 	}
 
 }

@@ -34,7 +34,7 @@ public class JwtUtils {
 	SecretKey key = Jwts.SIG.HS256.key().build();
 
 	@Value("${qtodo.app.jwtSessionExpirationMs}")
-	long jwtSessionExpirationMs;
+	int jwtSessionExpirationMs;
 
 	@Value("${qtodo.app.jwtRefreshExpirationMs}")
 	long jwtRefreshExpirationMs;
@@ -45,7 +45,7 @@ public class JwtUtils {
 
 	static List<UserPermissions> genericPermissions = Collections.unmodifiableList(Arrays.asList(
 				UserPermissions.READ, UserPermissions.WRITE, UserPermissions.EDIT,
-				UserPermissions.DELETE , UserPermissions.SERVER_TOOLS
+				UserPermissions.DELETE , UserPermissions.SERVER_TOOLS, UserPermissions.COLAB
 				));
 	
 	public TokenResponse generateTokenForUser(UserDto userDetails, Map<String,Object> claims) {
@@ -58,7 +58,8 @@ public class JwtUtils {
 				.signWith(key)
 				.compact();
 		
-		String refreshToken = issueRefreshTokenForUser(userDetails.getEmail(), userDetails.getUserGroup());
+		String refreshToken = issueRefreshTokenForUser(userDetails.getEmail(), userDetails.getUserGroup(),
+														userDetails.isUserGroupOpen(), userDetails.isUserGroupColaboration());
 		
 		return new TokenResponse(userDetails.getUserGroup(), sessionToken, refreshToken);
 	}
@@ -91,10 +92,12 @@ public class JwtUtils {
 	    }
 	}
 
-	public String issueRefreshTokenForUser(String email, String userGroup) {
+	public String issueRefreshTokenForUser(String email, String userGroup, boolean userGroupOpen, boolean userGroupColab) {
 		return Jwts.builder()
 				.subject(email)
 				.claim("user_group",userGroup)
+				.claim("user_group_open", userGroupOpen)
+			    .claim("user_group_colaboration", userGroupColab)
 				.issuedAt(new Date())
 				.expiration(new Date((new Date()).getTime() + jwtRefreshExpirationMs))
 				.signWith(key)
@@ -107,6 +110,8 @@ public class JwtUtils {
 
 		claims.put("email", userDetails.getEmail());
 		claims.put("user_group", userDetails.getUserGroup());
+		claims.put("user_group_open", userDetails.isUserGroupOpen());
+		claims.put("user_group_colaboration", userDetails.isUserGroupColaboration());
 		claims.put("alias", userDetails.getAlias());
 		claims.put("roles", genericRoles);
 		claims.put("permissions", genericPermissions);

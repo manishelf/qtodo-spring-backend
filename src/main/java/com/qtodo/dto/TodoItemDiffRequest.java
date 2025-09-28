@@ -12,7 +12,7 @@ import lombok.ToString;
 @ToString
 public class TodoItemDiffRequest {
 	
+	boolean partial = false;
 	List<TodoItemState> mergeItems = new ArrayList<>();
 	List<TodoItemState> deleteItems = new ArrayList<>();
-	
 }

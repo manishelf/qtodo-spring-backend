@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -35,11 +36,11 @@ public class SecurityConfig {
     @Value("${qtodo.app.frontend.host.domain}")
     String frontendDomain;
     
- 	String[] allowPaths = {"/qtodo-h2-console/**","/swagger-ui/**", "/v3/api-docs/**",
+ 	String[] allowPaths = {
+ 				"/qtodo-h2-console/**",
     			"/ang/**",
+    			"/proto/**",
     			"/up","/user/usergroups","/user/login", "/user/signup", "/user/refresh","/user/logout",
-    			"/item/doc/**",
-    			"/ws/**"
     			};
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -58,28 +59,30 @@ public class SecurityConfig {
         return authProvider;
     }
     
-//    @Bean
-//    @Order(1)
-//    SecurityFilterChain urlTokenSecurityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//             // This filter only applies to H2 console and checks if any refresh token available
-//        	.csrf(csrf -> csrf.disable())
-//        	.securityMatcher("/qtodo-h2-console/**","/swagger-ui/**", "/v3/api-docs/**") // h2 uses java serverlets which I cant intercept 
-//            .authorizeHttpRequests(authorize -> authorize
-//                    .anyRequest().authenticated()
-//                )
-//            .addFilterBefore(urlAuthFilter, UsernamePasswordAuthenticationFilter.class)                    
-//            .authenticationProvider(authenticationProvider())       
-//            .sessionManagement(session -> session
-//                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                )            
-//            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
-//            .cors(cors -> cors.configurationSource(corsConfigurationSource()));
-//
-//        return http.build();
-//    }   
+    @Bean
+    @Order(1)
+    SecurityFilterChain urlTokenSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+             // This filter only applies to H2 console and checks if any refresh token available
+        	.csrf(csrf -> csrf.disable())
+        	.securityMatcher("/qtodo-h2-console/**","/swagger-ui/**", "/v3/api-docs/**", "/ws/**" , "/item/doc/**"
+        			) // h2 uses java serverlets which I cant intercept 
+            .authorizeHttpRequests(authorize -> authorize
+                    .anyRequest().authenticated()
+                )
+            .addFilterBefore(urlAuthFilter, UsernamePasswordAuthenticationFilter.class)                    
+            .authenticationProvider(authenticationProvider())       
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )            
+            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
+        return http.build();
+    }   
 
     @Bean
+    @Order(2)
     SecurityFilterChain jwtSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf->csrf.disable())
@@ -103,8 +106,10 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
        
-        if(this.frontendDomain != null)
-        configuration.setAllowedOrigins(Arrays.asList(frontendDomain.split(",")));
+        if(this.frontendDomain != null) {
+        	configuration.setAllowedOrigins(Arrays.asList(frontendDomain.split(",")));
+        	System.out.println("Allowing frontend Domains - "+frontendDomain);
+        }
         else configuration.setAllowedOrigins(Arrays.asList("*"));
         
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));        

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -97,14 +98,17 @@ public class UserAuthService{
 
 		validationService.verifyEmail(email);
 		validationService.verifyPassword(loginCreds.getPassword());
-
-		Authentication authentication = authenticationManager.authenticate(
-	            new UsernamePasswordAuthenticationToken(
-	                loginCreds.getEmail()+"/usergroup/"+userGroup,
-	                loginCreds.getPassword()
-	            )
-	        );
-		
+		Authentication authentication = null;
+		try {
+			authentication = authenticationManager.authenticate(
+		            new UsernamePasswordAuthenticationToken(
+		                loginCreds.getEmail()+"/usergroup/"+userGroup,
+		                loginCreds.getPassword()
+		            )
+		        );
+		}catch(BadCredentialsException e) {
+			throw ValidationException.failedFor("login attemp for "+userGroup, "Invalid credentials");
+		}
 		
 		CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 		UserEntity ue = user.getUserEntity();
@@ -210,13 +214,13 @@ public class UserAuthService{
 	
 	public UserEntity getAuthenticatedUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		return (UserEntity) authentication.getPrincipal();
+		return ((CustomUserDetails) authentication.getPrincipal()).getUserEntity();
 	}
 
 	public UserGroup getAuthenticatedUsersUserGroup() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String userGroupTitle =  (String) authentication.getCredentials();
-		return userService.getUserGroupByTitle(userGroupTitle);
+		CustomUserDetails user =  (CustomUserDetails) authentication.getPrincipal();
+		return userService.getUserGroupByTitle(user.getUserGroup());
 	}
 
 }

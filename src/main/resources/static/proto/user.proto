@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_package = "com.qtodo.socket.proto";
+
+message UserProto {
+  string alias = 1;
+
+  string email = 2;
+
+  string user_group = 3;
+}

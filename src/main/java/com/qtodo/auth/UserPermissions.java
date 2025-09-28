@@ -9,6 +9,7 @@ public enum UserPermissions {
 	REMOVE,
 	LEAVE,
 	JOIN,
+	COLAB,
 	SERVER_TOOLS,
-	UG_OWNER
+	UG_OWNER,
 }

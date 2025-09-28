@@ -1,5 +1,6 @@
 package com.qtodo.service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,21 +33,47 @@ public class TodoItemDiffService extends TodoItemServiceBase {
 		var itemsForMergeReq = diffReq.getMergeItems();
 		var itemsForDeleteReq = diffReq.getDeleteItems();
 
+		String username = getAuthenticatedUser().getEmail();
+		String userGroup = getAuthenticatedUserGroup().getGroupTitle();
+		boolean isUserGroupColab = getAuthenticatedUserGroup().isColaboration();
 		
 		for(var itemForDelete : itemsForMergeReq) {
 			var item = itemRepo.findByUuid(itemForDelete.getUuid());
 			if(item.isPresent()) {
 				var ent = item.get();
-				if(itemForDelete.getVersion() > ent.getVersion()) {
+				if(itemForDelete.getVersion() > ent.getVersion() 
+						&& ent.getOwningUser().getEmail().equals(username)
+						&& ent.getOwningUserGroup().getGroupTitle().equals(userGroup)) {
 					ent.setDeleted(true);
 				}
 			}
 		}
 		
-		String username = getAuthenticatedUser().getEmail();
-		String userGroup = getAuthenticatedUserGroup().getGroupTitle();
 		
-		var itemList = todoItemRepo.getByUserEmailAndGroupTitle(username,userGroup);
+		List<TodoItem> itemList = null;
+		
+		boolean partial = diffReq.isPartial();
+		if(isUserGroupColab) {
+			if(partial) {
+				Instant lastChange = null;
+				if(itemsForMergeReq.size()>0) {
+					lastChange = itemsForMergeReq.get(0).getUpdationTimestamp();
+				}else {
+					lastChange = Instant.EPOCH;
+				}
+				itemList = todoItemRepo.getByUserGroupTitleAfter(userGroup, lastChange);
+			}else {				
+				itemList = todoItemRepo.getByUserGroupTitle(userGroup);
+			}
+			
+		}else {	
+			if(partial) {
+				Instant lastChange = itemsForMergeReq.get(0).getUpdationTimestamp();
+				itemList = todoItemRepo.getByUserEmailAndGroupTitleAfter(username, userGroup, lastChange);
+			}else {				
+				itemList = todoItemRepo.getByUserEmailAndGroupTitle(username,userGroup);
+			}
+		}
 		
 		Map<String, TodoItem> itemMap = new HashMap();
 		

@@ -156,9 +156,4 @@ public class TodoItemController {
 		
 		return new ApiResponseBase("deleted - "+deleteItemsRequest.getItemList().size(), HttpStatus.OK);
 	}
-
-	public ApiResponseBase addDocumentForUser() {
-		
-		return new ApiResponseBase(HttpStatus.OK);
-	}
 }

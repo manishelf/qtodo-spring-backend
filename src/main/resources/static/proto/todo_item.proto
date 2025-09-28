@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+option java_package = "com.qtodo.socket.proto";
+
+import "user.proto";
+import "google/protobuf/timestamp.proto"; 
+
+
+message TagProto {
+  string name = 1;
+}
+
+
+message TodoItemProto {
+  string subject = 1;
+  
+  string uuid = 2;
+  
+  int64 version = 3; 
+  
+  string description = 4;
+  
+  repeated TagProto tags = 5;
+
+  bool completion_status = 6;
+
+  bool set_for_reminder = 7;
+
+  google.protobuf.Timestamp event_start_date = 8;
+  google.protobuf.Timestamp event_end_date = 9;
+  
+  UserDefinedTypeProto user_defined = 10;
+    
+  google.protobuf.Timestamp creation_timestamp = 11;
+  google.protobuf.Timestamp updation_timestamp = 12;
+  
+  bool deleted = 13;
+  
+  UserProto owningUser = 14;
+}
+
+message FormFieldValidationProto {
+	bool require = 1;
+    bool readonly = 2;
+    int32 min_length = 3;
+    int32 max_length = 4;
+    string pattern = 5;
+    string min = 6;
+    string max = 7;
+    string step = 8;
+}
+
+
+message FormFieldProto {
+    string name = 1;
+    string label = 2;
+    string type = 3;
+    string placeholder = 4;
+    FormFieldValidationProto validation = 5; 
+    string options = 6; 
+    string default_value = 7;
+}
+
+message FormSchemaProto {
+    repeated FormFieldProto fields = 1; 
+}
+
+message UserDefinedTypeProto {
+    TagProto tag = 1; 
+    FormSchemaProto form_control_schema = 2;
+    map<string, string> data = 3; 
+}

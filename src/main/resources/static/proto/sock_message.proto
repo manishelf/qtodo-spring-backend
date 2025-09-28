@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option java_package = "com.qtodo.socket.proto";
+
+import "google/protobuf/timestamp.proto"; 
+import "todo_item.proto";
+import "user.proto";
+
+message MessageProto {
+  string type = 1;
+  string message = 2;
+  string schema = 3;
+  repeated UserProto users = 4;
+  repeated string user_groups = 5;
+  repeated TodoItemProto items = 6;
+  repeated TagProto tags = 7;
+  bytes raw_data = 8; 
+  google.protobuf.Timestamp created_at = 9; 
+}
