@@ -1,9 +1,9 @@
 package com.qtodo.auth;
 
-public enum UserRoles {
+public enum UserRole {
 	AUTHOR,
 	AUDIENCE,
 	COLLABORATOR,
 	ADMIN,
-	OWNER;
+	UG_OWNER;
 }

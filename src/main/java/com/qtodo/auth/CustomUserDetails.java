@@ -1,6 +1,8 @@
 package com.qtodo.auth;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,15 +12,15 @@ import com.qtodo.model.UserEntity;
 import com.qtodo.utils.JwtUtils;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class CustomUserDetails implements UserDetails {
 
 	UserEntity userEntity;
 	
 	String userGroup;
+	
+	List<GrantedAuthority> authorities = new ArrayList<>();
 	
 	@Autowired
 	JwtUtils jwtUtils;
@@ -26,7 +28,7 @@ public class CustomUserDetails implements UserDetails {
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return null;
+		return authorities;
 	}
 
 	@Override
@@ -54,9 +56,10 @@ public class CustomUserDetails implements UserDetails {
 		this.userEntity = userEntity;
 	}
 	
-	public CustomUserDetails(UserEntity userEntity, String userGroup){
+	public CustomUserDetails(UserEntity userEntity, String userGroup, List<GrantedAuthority> authorities){
 		this.userEntity = userEntity;
 		this.userGroup = userGroup;
+		this.authorities = authorities;
 	}
 
 }

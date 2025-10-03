@@ -64,22 +64,20 @@ public class JwtAuthFilter extends OncePerRequestFilter{
             
             
             List<GrantedAuthority> authorities = new ArrayList<>();
-            if (roles != null) {
-                roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
-            }
+            
             if (permissions != null) {
                 permissions.forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission)));
             }
-            
+                        
             UserEntity userEntity = userRepo.getByEmailInUserGroup(email, userGroup);
             
     		if(userEntity == null) {
     			filterChain.doFilter(request, response);
     			return;
     		}
-            
+    		
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-            		new CustomUserDetails(userEntity, userGroup)
+            		new CustomUserDetails(userEntity, userGroup, authorities)
             		, null, authorities);
             
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

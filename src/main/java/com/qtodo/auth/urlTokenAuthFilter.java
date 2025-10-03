@@ -13,8 +13,10 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.qtodo.dao.UserGroupRepo;
 import com.qtodo.dao.UserRepo;
 import com.qtodo.model.UserEntity;
+import com.qtodo.model.UserGroup;
 import com.qtodo.response.ValidationException;
 import com.qtodo.utils.JwtUtils;
 
@@ -33,6 +35,9 @@ public class urlTokenAuthFilter extends OncePerRequestFilter {
 
 	@Autowired
 	UserRepo userRepo;
+	
+	@Autowired
+	UserGroupRepo userGroupRepo;
 
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -54,6 +59,15 @@ public class urlTokenAuthFilter extends OncePerRequestFilter {
 			}
 		}
 		
+		if(token == null) {
+			var ref = request.getHeader("Referer");
+			if(ref != null) {				
+				var tok = ref.split("\\?sessionToken=");
+				if(tok.length > 1) {
+					token = tok[1];
+				}
+			}
+		}
         		
 		if(token == null) {
 			filterChain.doFilter(request, response);
@@ -77,41 +91,35 @@ public class urlTokenAuthFilter extends OncePerRequestFilter {
 			
 			String userGroup = (String) claims.get("user_group");
 			List<String> permissions = (List<String>) claims.get("permissions");
-			
+			List<String> roles = (List<String>) claims.get("roles");
+	          
+	            
+            List<GrantedAuthority> authorities = new ArrayList<>();
+            
+            if (permissions != null) {
+                permissions.forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission)));
+            }		
 
 			UserEntity userEntity = userRepo.getByEmailInUserGroup(email, userGroup);
+			UserGroup ug = userGroupRepo.getByGroupTitle(userGroup);
 
 			if (userEntity == null) {
 				filterChain.doFilter(request, response);
 				return;
 			}
 			
-			if (permissions != null) {
-				for(var perm: permissions) {
-					if(perm.equals(UserPermissions.SERVER_TOOLS.toString()) 
-						|| perm.equals(UserPermissions.COLAB.toString())) {
-						hasPermission = true;
-					}
+			for(var auth: authorities) {
+				if(auth.getAuthority().equals(UserPermission.SERVER_TOOLS.toString()) 
+					|| auth.getAuthority().equals(UserPermission.GET_DOCUMENT.toString())
+					|| (ug.isColaboration() && request.getRequestURI().contains("/ws?"))) {
+					hasPermission = true;
 				}
 			}
 			
 			if(hasPermission) {
-	            List<String> roles = (List<String>) claims.get("roles");
-	            
-	            
-	            List<GrantedAuthority> authorities = new ArrayList<>();
-	            
-	            if (roles != null) {
-	                roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
-	            }
-	            
-	            if (permissions != null) {
-	                permissions.forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission)));
-	            }
-
 
 				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-						new CustomUserDetails(userEntity, userGroup),
+						new CustomUserDetails(userEntity, userGroup, authorities),
 						null, authorities);
 	            
 	            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

@@ -31,10 +31,9 @@ public class UserDetailsServiceImpl implements UserDetailsService{
 			var e = ValidationException.failedFor("email", "no user with email "+email+" in usergroup "+userGroup);
 			throw new UsernameNotFoundException(e.getMessage());
 		}	
-	
-		CustomUserDetails userDetails = new CustomUserDetails();
 		
-		userDetails.setUserEntity(user);
+		
+		CustomUserDetails userDetails = new CustomUserDetails(user);
 		
 		return userDetails;
 	}
