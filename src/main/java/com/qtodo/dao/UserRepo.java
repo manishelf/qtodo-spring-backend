@@ -20,6 +20,9 @@ public interface UserRepo extends JpaRepository<UserEntity, Long>{
 	@Query("SELECT d FROM UserEntity u JOIN u.docs d WHERE u.id = ?1 AND d.info = ?2")
 	Optional<DocumentEntity> getProfilePicByUserId(Long id, String info);
 	
-	@Query("SELECT u FROM UserEntity u JOIN u.participantInUserGroups ug WHERE u.email = ?1 AND ug.groupTitle = ?2")
+	@Query("SELECT u FROM UserEntity u JOIN u.participantInUserGroups ug WHERE u.email = ?1"
+			+ " AND ug.groupTitle = ?2"
+			+ " AND u.deleted = false"
+			+ " AND ug.deleted = false")
 	UserEntity getByEmailInUserGroup(String email, String userGroupTitle);
 }

@@ -60,8 +60,6 @@ public class JwtAuthFilter extends OncePerRequestFilter{
             
             String userGroup = (String) claims.get("user_group");
             List<String> permissions = (List<String>) claims.get("permissions");
-            List<String> roles = (List<String>) claims.get("roles");
-            
             
             List<GrantedAuthority> authorities = new ArrayList<>();
             

@@ -3,6 +3,7 @@ package com.qtodo.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -10,7 +11,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,4 +39,18 @@ public class UserEntity extends EntityBase {
 	@ManyToMany(mappedBy="owningUsers", cascade = CascadeType.MERGE)
 	List<UserGroup> ownerOfUserGroups = new ArrayList();
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(email, participantInUserGroups.stream().map(ug->ug.groupTitle).collect(Collectors.toList()).toString());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null) return false;
+		if(!(obj instanceof UserEntity)) return false;
+		
+		var o = (UserEntity)obj;
+		return o.hashCode() == this.hashCode();
+	}
+	
 }

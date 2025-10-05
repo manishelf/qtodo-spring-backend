@@ -91,8 +91,6 @@ public class urlTokenAuthFilter extends OncePerRequestFilter {
 			
 			String userGroup = (String) claims.get("user_group");
 			List<String> permissions = (List<String>) claims.get("permissions");
-			List<String> roles = (List<String>) claims.get("roles");
-	          
 	            
             List<GrantedAuthority> authorities = new ArrayList<>();
             
@@ -131,6 +129,7 @@ public class urlTokenAuthFilter extends OncePerRequestFilter {
 	            cookie.setSecure(true);
 	            cookie.setMaxAge(jwtUtils.getJwtSessionExpirationMs());
 	            cookie.setPath(request.getRequestURI().split("\\?sessionToken")[0]);
+	            //path could be set to / for swagger request to work. but the scope is too large
 	            
 	            response.addCookie(cookie);
 			}

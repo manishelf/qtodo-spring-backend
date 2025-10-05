@@ -1,7 +1,5 @@
 package com.qtodo.utils;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,8 +10,8 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.qtodo.auth.UserPermissions;
-import com.qtodo.auth.UserRoles;
+import com.qtodo.auth.UserPermission;
+import com.qtodo.auth.UserRole;
 import com.qtodo.dto.UserDto;
 import com.qtodo.response.TokenResponse;
 import com.qtodo.response.ValidationException;
@@ -39,14 +37,7 @@ public class JwtUtils {
 	@Value("${qtodo.app.jwtRefreshExpirationMs}")
 	long jwtRefreshExpirationMs;
 
-	static List<UserRoles> genericRoles = Collections.unmodifiableList(Arrays.asList(
-				UserRoles.AUTHOR, UserRoles.AUDIENCE , UserRoles.ADMIN
-			));
-
-	static List<UserPermissions> genericPermissions = Collections.unmodifiableList(Arrays.asList(
-				UserPermissions.READ, UserPermissions.WRITE, UserPermissions.EDIT,
-				UserPermissions.DELETE , UserPermissions.SERVER_TOOLS, UserPermissions.COLAB
-				));
+	static List<UserPermission> genericPermissions = List.of(UserPermission.READ); 
 	
 	public TokenResponse generateTokenForUser(UserDto userDetails, Map<String,Object> claims) {
 		
@@ -66,6 +57,12 @@ public class JwtUtils {
 	
 	public TokenResponse generateTokenForUser(UserDto userDetails) {
 		return generateTokenForUser(userDetails, getGenericClaimsMap(userDetails));
+	}
+	
+	public TokenResponse generateTokenForUser(UserDto userDetails, List<UserPermission> permissions) {
+		var claims = getGenericClaimsMap(userDetails);
+		claims.put("permissions", permissions);
+		return generateTokenForUser(userDetails, claims);
 	}
 
 	public Claims getUserClaimsFromJwtToken(String token) throws ValidationException {
@@ -96,8 +93,6 @@ public class JwtUtils {
 		return Jwts.builder()
 				.subject(email)
 				.claim("user_group",userGroup)
-				.claim("user_group_open", userGroupOpen)
-			    .claim("user_group_colaboration", userGroupColab)
 				.issuedAt(new Date())
 				.expiration(new Date((new Date()).getTime() + jwtRefreshExpirationMs))
 				.signWith(key)
@@ -113,7 +108,6 @@ public class JwtUtils {
 		claims.put("user_group_open", userDetails.isUserGroupOpen());
 		claims.put("user_group_colaboration", userDetails.isUserGroupColaboration());
 		claims.put("alias", userDetails.getAlias());
-		claims.put("roles", genericRoles);
 		claims.put("permissions", genericPermissions);
 
 		return claims;
@@ -144,6 +138,52 @@ public class JwtUtils {
 			return true;
 		}
 		return false;
+	}
+
+	public static List<UserPermission> getPermissionsForUserRole(UserRole role) {
+		switch(role) {
+			case ADMIN:
+				return List.of(
+						UserPermission.SERVER_TOOLS, 
+						UserPermission.CHANGE_UG_CONFIG,
+						UserPermission.REMOVE_PARTICIPANT,
+						UserPermission.ADD_PARTICIPANTS,
+						UserPermission.MANAGE_PARTICIPANT_PERMISSIONS,
+						UserPermission.ENABLE_DISABLE_UG
+						);
+			case AUTHOR:
+				return List.of(
+						UserPermission.READ,
+						UserPermission.WRITE,
+						UserPermission.EDIT,
+						UserPermission.SHARE,
+						UserPermission.DELETE,
+						UserPermission.GET_DOCUMENT
+						);
+			case AUDIENCE:
+				return List.of(
+						UserPermission.READ,
+						UserPermission.GET_DOCUMENT
+						);
+			case COLLABORATOR: 
+				return List.of(
+						UserPermission.READ,
+						UserPermission.GET_DOCUMENT,
+						UserPermission.WRITE, 
+						UserPermission.SHARE,
+						UserPermission.EDIT
+						);
+			case UG_OWNER:
+				return List.of(
+						UserPermission.ADD_PARTICIPANTS,
+						UserPermission.REMOVE_PARTICIPANT,
+						UserPermission.MANAGE_PARTICIPANT_PERMISSIONS,
+						UserPermission.CHANGE_UG_CONFIG,
+						UserPermission.ENABLE_DISABLE_UG
+						);
+			default: 
+				return genericPermissions;
+		}
 	}
 
 }

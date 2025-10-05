@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.DateTimeException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +15,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.qtodo.auth.UserPermission;
+import com.qtodo.dto.TodoItemShareRequest;
+import com.qtodo.dto.UserDto;
 import com.qtodo.model.DocumentEntity;
 import com.qtodo.model.Tag;
 import com.qtodo.model.TodoItem;
@@ -26,8 +31,10 @@ import com.qtodo.response.TodoItemDto;
 import com.qtodo.response.UserDefinedTypeDto;
 import com.qtodo.response.ValidationException;
 
+import jakarta.transaction.Transactional;
+
 @Service
-public class TodoItemCreateService extends TodoItemServiceBase {
+public class TodoItemCreateService extends ServiceBase {
 	
 	public List<TodoItem> saveAll(ArrayList<TodoItemDto> itemDtoList) {
 		
@@ -35,11 +42,12 @@ public class TodoItemCreateService extends TodoItemServiceBase {
 		
 		for(var item : itemDtoList) {
 			var entity = saveOne(item);
-			items.add(entity);
+			if(entity != null) {				
+				items.add(entity);
+			}
 		}
-		
-		
-		return todoItemRepo.saveAll(items);
+	
+		return items;
 	}
 
 	public TodoItem saveOne(TodoItemDto item, UserEntity owner, UserGroup owningGroup) {
@@ -77,7 +85,7 @@ public class TodoItemCreateService extends TodoItemServiceBase {
 	}
 	
 	public TodoItem saveOne(TodoItemDto item) {
-		return saveOne(item, getAuthenticatedUser(), getAuthenticatedUserGroup());
+		return saveOne(item, getAuthenticatedUser(), getAuthenticatedUsersUserGroup());
 	}
 
 	public UserDefinedType saveUserDefined(UserDefinedTypeDto userDefined) {
@@ -119,7 +127,7 @@ public class TodoItemCreateService extends TodoItemServiceBase {
             Files.createDirectories(Paths.get(getFsDocUrl()));
             
             String email = getAuthenticatedUser().getEmail();
-            String userGroup = getAuthenticatedUserGroup().getGroupTitle();
+            String userGroup = getAuthenticatedUsersUserGroup().getGroupTitle();
             fileName = userGroup+"_"+email.replace(".", "_").replace("@", "_")+"_"+fileName;
             String[] extension = fileType.split("/");
             if(extension.length!=2) {
@@ -137,8 +145,8 @@ public class TodoItemCreateService extends TodoItemServiceBase {
 	            docEntity.setInfo(fileInfo);
 	            docEntity.setRefUrl("/"+fileName);
             	
-            	var ue = userRepo.getByEmailInUserGroup(email, userGroup);
-            	var ug = userGroupRepo.getByGroupTitle(userGroup);
+            	var ue = getAuthenticatedUser();
+            	var ug = getAuthenticatedUsersUserGroup();
             	
             	docEntity.setOwningUser(ue);
             	docEntity.setOwningUserGroup(ug);
@@ -155,5 +163,37 @@ public class TodoItemCreateService extends TodoItemServiceBase {
             e.printStackTrace();
             throw ValidationException.failedFor("document", "failed to save "+fileName);
         }
+	}
+
+	public List<UserDto> shareAll(ArrayList<TodoItemShareRequest> itemShareRequest) {
+		var reciepients = new ArrayList<UserDto>();
+		var userGroup = getAuthenticatedUsersUserGroup();
+		var user = getAuthenticatedUser();
+		
+		if(!userGroup.isColaboration())
+		itemShareRequest.forEach((req)->{
+			var reciepient = userRepo.getByEmailInUserGroup(req.getReciepientEmail(), userGroup.getGroupTitle());
+			if(reciepient != null) {
+				var todoItem = todoItemRepo.findByUuid(req.getTodoItemUUID());
+				if(todoItem.isPresent()) {
+					var todoItemEnt = todoItem.get();
+					if(todoItemEnt.getOwningUser().equals(user)) {
+						var newTodoItem = todoItemEnt.clone();
+						var newUUID = "SHARED-"+Instant.now().toEpochMilli()+"-"+todoItemEnt.getUuid();
+						
+						newTodoItem.setOwningUser(reciepient);
+						newTodoItem.setOwningUserGroup(userGroup);
+						newTodoItem.setUuid(newUUID);
+						
+						todoItemRepo.save(newTodoItem);
+						
+						reciepient.getTodoItems().add(todoItemEnt);
+						reciepients.add(new UserDto(reciepient, userGroup));
+					};
+				}
+			}
+		});
+		
+		return reciepients;
 	}
 }

@@ -1,34 +1,27 @@
 package com.qtodo.service;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.qtodo.dao.DocumentRepo;
-import com.qtodo.dao.UserGroupRepo;
-import com.qtodo.dao.UserRepo;
+import com.qtodo.auth.UserRole;
 import com.qtodo.dto.UserDto;
 import com.qtodo.model.DocumentEntity;
+import com.qtodo.model.PermissionForUserInUserGroup;
 import com.qtodo.model.UserEntity;
 import com.qtodo.model.UserGroup;
 import com.qtodo.response.ValidationException;
 import com.qtodo.utils.CommonUtils;
+import com.qtodo.utils.JwtUtils;
 
 @Service
-public class UserService {
-
-	@Autowired
-	UserRepo userRepo;
-
-	@Autowired
-	DocumentRepo docRepo;
-
-	@Autowired
-	UserGroupRepo userGroupRepo;
+public class UserService extends ServiceBase{
 	
 	@Autowired
 	PasswordEncoder passwordEncoder;
@@ -38,6 +31,9 @@ public class UserService {
 		var user = userDetails.toBasicEntity();
 
 		String userGroup = userDetails.getUserGroup();
+		
+		var roles = new ArrayList<UserRole>();
+		roles.add(UserRole.AUDIENCE);
 		
 		if (CommonUtils.isBlank(userGroup)) {
 			userGroup = "qtodo";
@@ -53,13 +49,35 @@ public class UserService {
 			ug = new UserGroup();
 			ug.setGroupTitle(userGroup);
 			ug.getOwningUsers().add(user);
-			user.getOwnerOfUserGroups().add(ug);
+			if(!ug.getGroupTitle().equals("qtodo")) {
+				user.getOwnerOfUserGroups().add(ug);
+				roles.add(UserRole.UG_OWNER);
+				roles.add(UserRole.AUTHOR);
+			}
+		}
+		
+		if(ug.isColaboration()) {
+			roles.add(UserRole.COLLABORATOR);
 		}
 
 		ug.getParticipantUsers().add(user);
 		user.getParticipantInUserGroups().add(ug);
 		userRepo.save(user);
 		userGroupRepo.save(ug);
+		
+		final var finalUg = ug;
+		final var finalUser = user;
+		roles.forEach(role->{
+			var permissions = JwtUtils.getPermissionsForUserRole(role);
+			permissions.forEach(permission->{
+				var pe = new PermissionForUserInUserGroup();
+				pe.setPermission(permission);
+				pe.setUser(finalUser);
+				pe.setUserGroup(finalUg);
+				pe.setEnabled(true);
+				permissionRepo.save(pe);
+			});
+		});
 		
 		return user;
 
@@ -72,16 +90,17 @@ public class UserService {
 		return false;
 	}
 
-	public UserDto getUserDetailsForUserInUserGroup(UserEntity user, String userGroup) {
+	public UserDto getUserDetailsForUserInUserGroup(UserEntity user, String userGroup) {	
 		
-		String profilePicUrl = null;
-		Optional<DocumentEntity> profPic = userRepo.getProfilePicByUserId(user.getId(), "profile_pic_"+userGroup);
-		if(profPic.isPresent()) {
-			var profPicUrl = profPic.get().getRefUrl();
-			profilePicUrl = "/item/doc"+profPicUrl;
-		}
+		var permissions = permissionRepo.getByUserEmailAndGroupTitle(user.getEmail(), userGroup)
+						.stream().filter(perm->!perm.isEnabled()).map(perm->perm.getPermission()).collect(Collectors.toList());
+			
 		UserGroup ug = userGroupRepo.getByGroupTitle(userGroup);
-		UserDto userDetails = new UserDto(user, ug, profilePicUrl);
+		UserDto userDetails = new UserDto(user, ug);
+		
+		userDetails.setProfilePicture(getProfilePicUrlForUser(user.getId(), userGroup));
+		userDetails.setPermissions(permissions);
+		
 		return userDetails;
 	}
 
@@ -95,8 +114,14 @@ public class UserService {
 		return res;
 	}
 
-	public UserGroup getUserGroupByTitle(String userGroupTitle) {
-		return userGroupRepo.getByGroupTitle(userGroupTitle);
+	public String getProfilePicUrlForUser(Long userId, String userGroup) {
+		String profilePicUrl = null;
+		Optional<DocumentEntity> profPic = userRepo.getProfilePicByUserId(userId, "profile_pic_"+userGroup);
+		if(profPic.isPresent()) {
+			var profPicUrl = profPic.get().getRefUrl();
+			profilePicUrl = "/item/doc"+profPicUrl;
+		}
+		return profilePicUrl;
 	}
 
 }

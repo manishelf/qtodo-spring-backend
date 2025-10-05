@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +25,7 @@ import com.qtodo.dto.DiffTodoItemResponse;
 import com.qtodo.dto.ManyTodoItemCRUDRequest;
 import com.qtodo.dto.SearchCriteria;
 import com.qtodo.dto.TodoItemDiffRequest;
-import com.qtodo.model.userdefined.UserDefinedType;
+import com.qtodo.dto.TodoItemShareRequest;
 import com.qtodo.response.ApiResponseBase;
 import com.qtodo.response.ManyTodoItemsResponse;
 import com.qtodo.response.TodoItemDto;
@@ -34,9 +35,6 @@ import com.qtodo.service.TodoItemDiffService;
 import com.qtodo.service.TodoItemGetService;
 import com.qtodo.service.TodoItemSearchService;
 import com.qtodo.service.TodoItemUpdateService;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.OneToOne;
 
 @RestController
 @RequestMapping("/item")
@@ -57,10 +55,8 @@ public class TodoItemController {
 	@Autowired
 	TodoItemDiffService todoItemDiffService;
 
-	@OneToOne(cascade = CascadeType.PERSIST)
-	UserDefinedType userDefined;
-
 	@PostMapping("/save")
+	@PreAuthorize("hasAuthority('WRITE')")
 	public ApiResponseBase saveTodoItem(@RequestBody ManyTodoItemCRUDRequest itemSaveRequest) {
 		var response = new ApiResponseBase(HttpStatus.OK);
 		if (itemSaveRequest.getItemList() != null) {
@@ -72,7 +68,17 @@ public class TodoItemController {
 		return response;
 	}
 	
+	@PostMapping("/share")
+	@PreAuthorize("hasAuthority('SHARE')")
+	public ApiResponseBase shareTodoItem(@RequestBody ArrayList<TodoItemShareRequest> itemShareRequest) {
+		var response = new ApiResponseBase(HttpStatus.OK);
+		var reciepients = todoItemCreateService.shareAll(itemShareRequest);
+		response.setResponseMessage("Item Shared to ! - "+reciepients.size());
+		return response;
+	}
+	
 	@PostMapping("/save/document")
+	@PreAuthorize("hasAnyAuthority('WRITE', 'EDIT')")
 	public ApiResponseBase saveDocuments(
 				@RequestPart("file") MultipartFile docSaveRequest,
 				@RequestPart("fileType") String fileType,
@@ -86,11 +92,13 @@ public class TodoItemController {
 	}
 	
 	@PostMapping("/getdiff")
+	@PreAuthorize("hasAuthority('READ')")
 	public DiffTodoItemResponse getDiffTodoItems(@RequestBody TodoItemDiffRequest diffReq) {
 		return this.todoItemDiffService.processDiff(diffReq);
 	}
 
 	@GetMapping("/all")
+	@PreAuthorize("hasAuthority('READ')")
 	public ManyTodoItemsResponse getAllTodoItems(@RequestParam(name = "page", required = false) Integer pageNo,
 			@RequestParam(name = "limit", required = false) Integer limit,
 			@RequestParam(name = "ord", required = false) ArrayList<String> sortOrder) {
@@ -111,6 +119,7 @@ public class TodoItemController {
 	}
 	
 	@GetMapping("/doc/{refUrl}")
+	@PreAuthorize("hasAuthority('GET_DOCUMENT')")
 	public ResponseEntity<Resource> getDocument(@PathVariable String refUrl) throws ValidationException {
 		var dto =  this.todoItemGetService.getDocument(refUrl);
 		
@@ -123,6 +132,7 @@ public class TodoItemController {
 	}
 	
 	@PostMapping("/search")
+	@PreAuthorize("hasAuthority('READ')")
 	public ManyTodoItemsResponse searchTodoItems(@RequestBody SearchCriteria query) {
 		var todoItemsList = todoItemSearchService.searchByCriteria(query);
 
@@ -135,15 +145,21 @@ public class TodoItemController {
 	}
 
 	@PatchMapping("/update")
+	@PreAuthorize("hasAnyAuthority('EDIT')")
 	public	ApiResponseBase  updateTodoItem(@RequestBody ManyTodoItemCRUDRequest updateItemsRequest) throws ValidationException {
 		
 		if(updateItemsRequest.getItemList().isEmpty()) return new ApiResponseBase(HttpStatus.NO_CONTENT);
 		
 		String responseMessage = this.todoItemUpdateService.update(updateItemsRequest.getItemList());
-		return new ApiResponseBase(responseMessage, HttpStatus.OK);
+		var status = HttpStatus.OK;
+		if(responseMessage.contains("no permission")) {
+			status = HttpStatus.FORBIDDEN;
+		}
+		return new ApiResponseBase(responseMessage, status);
 	}
 	
 	@PostMapping("/delete")
+	@PreAuthorize("hasAuthority('DELETE')")
 	public ApiResponseBase deleteTodoItems(@RequestBody ManyTodoItemCRUDRequest deleteItemsRequest) throws ValidationException {
 		
 		if(deleteItemsRequest.getItemList().isEmpty()) return new ApiResponseBase(HttpStatus.NO_CONTENT);

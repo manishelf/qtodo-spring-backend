@@ -2,6 +2,7 @@ package com.qtodo.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -15,6 +16,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponseBase> handleValidationException(ValidationException ve) {
 		ve.printStackTrace();
         return ApiResponseBase.asWrapped(new ApiResponseBase(ve.getMessage(), HttpStatus.BAD_REQUEST));
+    }
+	
+	@ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiResponseBase> handleAccessDeniedException(AuthorizationDeniedException ex) {
+    	ex.printStackTrace();
+        return ApiResponseBase.asWrapped(new ApiResponseBase("Unable to process request "+ex.getMessage(), HttpStatus.FORBIDDEN));
     }
 
     @ExceptionHandler(Exception.class)

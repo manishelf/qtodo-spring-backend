@@ -1,7 +1,10 @@
 package com.qtodo.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.qtodo.auth.UserPermission;
 import com.qtodo.model.UserEntity;
 import com.qtodo.model.UserGroup;
 
@@ -26,6 +29,10 @@ public class UserDto {
 	
 	String userGroup;
 	
+	boolean isOnlineInUg;
+	
+	List<UserPermission> permissions;
+	
 	
 	@JsonProperty(access = Access.READ_ONLY)
 	boolean isUserGroupOpen = true;
@@ -36,13 +43,12 @@ public class UserDto {
 	@JsonProperty(access = Access.READ_ONLY)
 	String accessToken;
 	
-	public UserDto(UserEntity ue, UserGroup ug, String profilePicture) {
+	public UserDto(UserEntity ue, UserGroup ug) {
 		this.alias = ue.getAlias();
 		this.email = ue.getEmail();
 		this.userGroup = ug.getGroupTitle();
 		this.isUserGroupColaboration = ug.isColaboration();
 		this.isUserGroupOpen = ug.isOpen();
-		this.profilePicture = profilePicture;
 	}
 
 	public UserEntity toBasicEntity() {

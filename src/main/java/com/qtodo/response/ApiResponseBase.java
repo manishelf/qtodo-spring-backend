@@ -58,6 +58,10 @@ public class ApiResponseBase {
 		this.newCookie = newCookie;
 	}
 
+	public ApiResponseBase(String message) {
+		this(message, HttpStatus.OK);
+	}
+
 	public static <T extends ApiResponseBase> ResponseEntity<T> asWrapped(T response) {
 		if ((response.newCookie != null || response.existingCookies != null) && response.status.equals(HttpStatus.OK)) {
 			var resp = ResponseEntity.status(response.status);

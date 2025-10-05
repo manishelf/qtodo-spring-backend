@@ -18,7 +18,7 @@ import com.qtodo.model.TodoItem;
 import com.qtodo.response.TodoItemDto;
 
 @Service
-public class TodoItemDiffService extends TodoItemServiceBase {
+public class TodoItemDiffService extends ServiceBase {
 	
 	@Autowired
 	TodoItemRepo itemRepo;
@@ -34,8 +34,9 @@ public class TodoItemDiffService extends TodoItemServiceBase {
 		var itemsForDeleteReq = diffReq.getDeleteItems();
 
 		String username = getAuthenticatedUser().getEmail();
-		String userGroup = getAuthenticatedUserGroup().getGroupTitle();
-		boolean isUserGroupColab = getAuthenticatedUserGroup().isColaboration();
+		var userGroup = getAuthenticatedUsersUserGroup();
+		String userGroupTitle = userGroup.getGroupTitle();
+		boolean isUserGroupColab = userGroup.isColaboration();
 		
 		for(var itemForDelete : itemsForMergeReq) {
 			var item = itemRepo.findByUuid(itemForDelete.getUuid());
@@ -61,17 +62,17 @@ public class TodoItemDiffService extends TodoItemServiceBase {
 				}else {
 					lastChange = Instant.EPOCH;
 				}
-				itemList = todoItemRepo.getByUserGroupTitleAfter(userGroup, lastChange);
+				itemList = todoItemRepo.getByUserGroupTitleAfter(userGroupTitle, lastChange);
 			}else {				
-				itemList = todoItemRepo.getByUserGroupTitle(userGroup);
+				itemList = todoItemRepo.getByUserGroupTitle(userGroupTitle);
 			}
 			
 		}else {	
 			if(partial) {
 				Instant lastChange = itemsForMergeReq.get(0).getUpdationTimestamp();
-				itemList = todoItemRepo.getByUserEmailAndGroupTitleAfter(username, userGroup, lastChange);
+				itemList = todoItemRepo.getByUserEmailAndGroupTitleAfter(username, userGroupTitle, lastChange);
 			}else {				
-				itemList = todoItemRepo.getByUserEmailAndGroupTitle(username,userGroup);
+				itemList = todoItemRepo.getByUserEmailAndGroupTitle(username,userGroupTitle);
 			}
 		}
 		

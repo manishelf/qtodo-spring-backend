@@ -26,7 +26,7 @@ import com.qtodo.response.ValidationException;
 
 
 @Component
-public class TodoItemGetService extends TodoItemServiceBase{
+public class TodoItemGetService extends ServiceBase{
 	
 	public List<TodoItemDto> getAll(Integer pageNo, Integer limit, ArrayList<String> sortOrder) {
 
@@ -46,7 +46,7 @@ public class TodoItemGetService extends TodoItemServiceBase{
 
 		UserEntity user = getAuthenticatedUser();
 		
-		UserGroup userGroup = getAuthenticatedUserGroup();
+		UserGroup userGroup = getAuthenticatedUsersUserGroup();
 		
 		List<TodoItem> items = null;
 		
@@ -77,7 +77,7 @@ public class TodoItemGetService extends TodoItemServiceBase{
 		List<TodoItem> item = new ArrayList<>();
 		
 		UserEntity user = getAuthenticatedUser();
-		UserGroup userGroup = getAuthenticatedUserGroup();
+		UserGroup userGroup = getAuthenticatedUsersUserGroup();
 		
 		if(userGroup.isColaboration()) {			
 			item = this.todoItemRepo.findBySubjectAndUserGroup(subject, userGroup.getGroupTitle());

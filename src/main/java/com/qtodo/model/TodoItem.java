@@ -22,7 +22,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +33,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 @IdClass(TodoItemKey.class)
-public class TodoItem{
+public class TodoItem implements Cloneable{
 	
 	@Column(unique = true, nullable = false)
 	@NotBlank
@@ -83,4 +82,27 @@ public class TodoItem{
 	Instant updationTimestamp;
 	
 	boolean deleted;
+
+	@Override
+	public TodoItem clone() {
+		var newItem = new TodoItem();
+		newItem.uuid = null;
+	    newItem.subject = this.subject;
+	    newItem.description = this.description;
+	    newItem.completionStatus = this.completionStatus;
+	    newItem.setForReminder = this.setForReminder;
+	    newItem.eventStartDate = this.eventStartDate;
+	    newItem.eventEndDate = this.eventEndDate;
+	    newItem.deleted = false;
+	    newItem.tags = this.tags; 
+		newItem.userDefined = this.userDefined; 
+		newItem.version = 0; 
+	    newItem.owningUser = null; 
+	    newItem.owningUserGroup = null;
+	    newItem.creationTimestamp = null;
+	    newItem.updationTimestamp = null;
+	    
+	    return newItem;
+	}
+
 }
