@@ -3,6 +3,7 @@ package com.qtodo.socket;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.Instant;
+import java.util.ArrayList;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.socket.BinaryMessage;
@@ -13,6 +14,7 @@ import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.qtodo.auth.CustomUserDetails;
+import com.qtodo.auth.UserPermission;
 import com.qtodo.response.ValidationException;
 import com.qtodo.socket.proto.SockMessage.MessageProto;
 
@@ -92,6 +94,19 @@ public class SocketHandler extends BinaryWebSocketHandler {
     }
 
     private void sendRefreshToMembers(WebSocketSession session) {
+    	var user = getUserFromSession(session);
+    	var authorities = user.getAuthorities();
+    	var hasPermission = false;
+    	
+        for(int i = 0 ; i< authorities.size(); i++){
+        	var a = authorities.get(i);
+    		hasPermission = hasPermission
+    				|| a.getAuthority().equals(UserPermission.WRITE.toString()) 
+    				|| a.getAuthority().equals(UserPermission.EDIT.toString()); 
+        }
+        
+        if(!hasPermission) return;
+        
     	var outgoing = MessageProto.newBuilder()
 					.setType(MessageTypes.REFRESH_MERGE.toString())
 					.setCreatedAt(getNowAsProto())
@@ -99,7 +114,7 @@ public class SocketHandler extends BinaryWebSocketHandler {
 		var payload = new BinaryMessage(outgoing.toByteArray());
 		
 		System.out.println("Sending sync to group");
-		this.wsManager.getWebSocketInGroupSessionsExcept(getUserFromSession(session).getUserGroup(), session)
+		this.wsManager.getWebSocketInGroupSessionsExcept(user.getUserGroup(), session)
 			.forEach(x->{
 				try {
 					System.out.println(x.getId());

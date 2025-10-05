@@ -145,7 +145,7 @@ public class TodoItemCreateService extends ServiceBase {
 	            docEntity.setInfo(fileInfo);
 	            docEntity.setRefUrl("/"+fileName);
             	
-            	var ue = getAuthenticatedUser();
+            	var ue = userRepo.getByEmailInUserGroup(email, userGroup);
             	var ug = getAuthenticatedUsersUserGroup();
             	
             	docEntity.setOwningUser(ue);

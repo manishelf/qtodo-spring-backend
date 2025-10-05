@@ -78,7 +78,7 @@ public class TodoItemController {
 	}
 	
 	@PostMapping("/save/document")
-	@PreAuthorize("hasAnyAuthority('WRITE', 'EDIT')")
+	@PreAuthorize("hasAnyAuthority('WRITE', 'EDIT', 'READ')") // READ as otherwise profile pic cannot be saved for new user
 	public ApiResponseBase saveDocuments(
 				@RequestPart("file") MultipartFile docSaveRequest,
 				@RequestPart("fileType") String fileType,
