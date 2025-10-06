@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1759670467840,
+  "timestamp": 1759771491986,
   "index": "/ang/index.html",
   "assetGroups": [
     {
@@ -16,7 +16,7 @@
         "/ang/favicon.ico",
         "/ang/fullcalendar.global.min.js",
         "/ang/index.html",
-        "/ang/main-SW2OMQAW.js",
+        "/ang/main-X24HWT6C.js",
         "/ang/manifest.webmanifest",
         "/ang/polyfills-HGDOEU5L.js",
         "/ang/styles-J5FWVSWE.css",
@@ -64,8 +64,8 @@
     "/ang/favicon-32x32.png": "3dd2eca0b23ee80f6c3ff206cc6aae62eaf41afc",
     "/ang/favicon.ico": "3df5bd793e7e65a484d314e0a8ef8ed0e8f43c17",
     "/ang/fullcalendar.global.min.js": "48c77ab005b206211cf9f82e47119e5e4a7e444b",
-    "/ang/index.html": "a80f223e6a162c89a4a927128cd1c98a64b19d24",
-    "/ang/main-SW2OMQAW.js": "099b08252ab1ddb84b278757d1e0ce9c617b865e",
+    "/ang/index.html": "d737aa5b2c99d596f1929d74eed962d35293dcbe",
+    "/ang/main-X24HWT6C.js": "824e1ed0aead9737a3ec345f366543dd1e2eba61",
     "/ang/manifest.webmanifest": "bf31baf91bdd2fcde24a45e3f2a1be33733c6f69",
     "/ang/media/material-icons-JLIDJUWE.woff": "e4bb7c1e40d3febee58df963db276b2bf68c117b",
     "/ang/media/material-icons-LEZCGFVT.woff2": "0bc0c675480d94ec7e8609dda6227f88c5d08d2c",

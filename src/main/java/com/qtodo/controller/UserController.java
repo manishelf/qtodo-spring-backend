@@ -129,7 +129,7 @@ public class UserController {
 		if(newPermissions.size() == 0) {
 			return ApiResponseBase.asWrapped(new ApiResponseBase("Updated existing permissions successfully!"));
 		}else {
-			return ApiResponseBase.asWrapped(new ApiResponseBase("Addd granted new permissions successfully"));
+			return ApiResponseBase.asWrapped(new ApiResponseBase("Granted new permissions successfully"));
 		}
 	}
 	

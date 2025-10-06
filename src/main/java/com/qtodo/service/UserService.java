@@ -56,6 +56,10 @@ public class UserService extends ServiceBase{
 			}
 		}
 		
+		if(ug.getGroupTitle().equals("qtodo")) {
+			roles.add(UserRole.AUTHOR);
+		}
+		
 		if(ug.isColaboration()) {
 			roles.add(UserRole.COLLABORATOR);
 		}

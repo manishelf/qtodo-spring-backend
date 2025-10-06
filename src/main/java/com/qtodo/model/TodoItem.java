@@ -18,6 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -59,7 +60,7 @@ public class TodoItem implements Cloneable{
 
 	LocalDateTime eventEndDate;
 	
-	@OneToOne(mappedBy = "owningItem", cascade = {CascadeType.ALL}, orphanRemoval = true)
+	@OneToOne(mappedBy = "owningItem", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
 	UserDefinedType userDefined;
 	
 	@Id

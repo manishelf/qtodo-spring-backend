@@ -34,6 +34,7 @@ import com.qtodo.response.ValidationException;
 import jakarta.transaction.Transactional;
 
 @Service
+@Transactional
 public class TodoItemCreateService extends ServiceBase {
 	
 	public List<TodoItem> saveAll(ArrayList<TodoItemDto> itemDtoList) {
@@ -76,8 +77,7 @@ public class TodoItemCreateService extends ServiceBase {
 		e = todoItemRepo.save(e);
 
 		if(item.getUserDefined()!=null) {			
-			var ud = saveUserDefined(item.getUserDefined());
-			ud.setOwningItem(e);
+			var ud = saveUserDefined(item.getUserDefined(), e);
 			e.setUserDefined(ud);
 		}
 		
@@ -88,7 +88,7 @@ public class TodoItemCreateService extends ServiceBase {
 		return saveOne(item, getAuthenticatedUser(), getAuthenticatedUsersUserGroup());
 	}
 
-	public UserDefinedType saveUserDefined(UserDefinedTypeDto userDefined) {
+	public UserDefinedType saveUserDefined(UserDefinedTypeDto userDefined, TodoItem owningItem) {
 
 		UserDefinedType ud = new UserDefinedType();
 		var tagEntity = this.tagRepo.findByName(userDefined.getTag().getName());
@@ -99,6 +99,7 @@ public class TodoItemCreateService extends ServiceBase {
 		ud.setTag(tagEntity.get());
 		ud.setFormSchema(saveFormControlSchema(userDefined.getFormControlSchema()));
 		ud.setData(userDefined.getData());
+		ud.setOwningItem(owningItem);
 		
 		ud = udtRepo.save(ud);
 		
