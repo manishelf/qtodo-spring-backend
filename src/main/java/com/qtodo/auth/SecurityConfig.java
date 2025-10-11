@@ -32,7 +32,7 @@ public class SecurityConfig {
     JwtAuthFilter jwtAuthFilter;
     
     @Autowired
-    urlTokenAuthFilter urlAuthFilter;
+    UrlTokenAuthFilter urlAuthFilter;
     
     @Autowired
     UserDetailsServiceImpl userDetailsServiceImpl;

@@ -41,6 +41,7 @@ public class JwtAuthFilter extends OncePerRequestFilter{
         String email = null;
         Claims claims = null;
         
+        System.out.println(request.getRequestURI());
         
         if (authHeader != null && authHeader.length()>7 && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);

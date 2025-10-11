@@ -171,7 +171,9 @@ public class JwtUtils {
 						UserPermission.GET_DOCUMENT,
 						UserPermission.WRITE, 
 						UserPermission.SHARE,
-						UserPermission.EDIT
+						UserPermission.EDIT,
+						UserPermission.DELETE,
+						UserPermission.COLAB
 						);
 			case UG_OWNER:
 				return List.of(

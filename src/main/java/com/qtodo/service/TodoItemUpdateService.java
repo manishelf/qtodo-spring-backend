@@ -36,7 +36,7 @@ public class TodoItemUpdateService extends ServiceBase {
 			Optional<TodoItem> existing = todoItemRepo.getByUuid(forUpdate.getUuid());
 			if (existing.isPresent()) {
 				TodoItem existingItem = existing.get();
-				if(permissions.contains(UserPermission.DELETE) && permissions.contains(UserPermission.EDIT)) {
+				if(permissions.contains(UserPermission.EDIT)) {
 					if(!forUpdate.getSubject().equals(existingItem.getSubject())) {
 							existingItem.setDeleted(true);
 							var uuid = existingItem.getUuid();
@@ -52,7 +52,7 @@ public class TodoItemUpdateService extends ServiceBase {
 						responseMessage += "existing item "+action;
 					}
 				}else {
-					responseMessage += "no permission - EDIT + DELETE";
+					responseMessage += "no permission - EDIT";
 				}
 			} else {
 				if(permissions.contains(UserPermission.WRITE)) {					
