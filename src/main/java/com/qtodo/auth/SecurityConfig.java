@@ -61,7 +61,7 @@ public class SecurityConfig {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsServiceImpl);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
-    }
+    } 
     
     @Bean
     @Order(1)
@@ -78,7 +78,7 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())       
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )            
+                ) 
             .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
             .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
