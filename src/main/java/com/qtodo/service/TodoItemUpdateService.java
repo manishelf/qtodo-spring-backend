@@ -27,11 +27,12 @@ public class TodoItemUpdateService extends ServiceBase {
 	TodoItemCreateService createService;
 	
 	public String update(List<TodoItemDto> forUpdateList) throws ValidationException {
-		String responseMessage = "";
+		String responseMessage = "a";
 		
 		var isColab = getAuthenticatedUsersUserGroup().isColaboration();
 		var permissions = getAuthenticatedUsersPermissions();
 		
+		System.out.println(forUpdateList.size());
 		for(TodoItemDto forUpdate : forUpdateList) {
 			Optional<TodoItem> existing = todoItemRepo.getByUuid(forUpdate.getUuid());
 			if (existing.isPresent()) {
@@ -66,6 +67,7 @@ public class TodoItemUpdateService extends ServiceBase {
 			responseMessage += ", ";
 		}
 		
+		System.out.println(responseMessage);
 		return responseMessage;
 	}
 

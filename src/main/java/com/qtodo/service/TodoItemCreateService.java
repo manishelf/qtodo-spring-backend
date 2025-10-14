@@ -73,12 +73,17 @@ public class TodoItemCreateService extends ServiceBase {
 		
 		e.setOwningUser(owner);
 		e.setOwningUserGroup(owningGroup);
-		
-		e = todoItemRepo.save(e);
-
-		if(item.getUserDefined()!=null) {			
-			var ud = saveUserDefined(item.getUserDefined(), e);
-			e.setUserDefined(ud);
+		try {
+			e = todoItemRepo.save(e);
+	
+			if(item.getUserDefined()!=null) {			
+				var ud = saveUserDefined(item.getUserDefined(), e);
+				e.setUserDefined(ud);
+			}
+		}catch (Exception exp) {
+			exp.printStackTrace();
+			logger.error(exp.getMessage());
+			e = null;
 		}
 		
 		return e;

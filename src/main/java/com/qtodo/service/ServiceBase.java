@@ -3,6 +3,7 @@ package com.qtodo.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,7 +25,6 @@ import com.qtodo.dao.UserRepo;
 import com.qtodo.model.UserEntity;
 import com.qtodo.model.UserGroup;
 
-import jakarta.transaction.Transactional;
 import lombok.Getter;
 
 @Service
@@ -56,6 +56,8 @@ public class ServiceBase {
 	@Autowired
 	protected PermissionForUserInUserGroupRepo permissionRepo;
 
+	@Autowired
+	protected Logger logger;
 	
 	@Autowired
     AuthenticationManager authenticationManager;

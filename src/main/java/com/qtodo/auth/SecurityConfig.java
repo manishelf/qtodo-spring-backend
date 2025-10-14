@@ -41,6 +41,13 @@ public class SecurityConfig {
     String frontendDomain;
     
  	String[] allowPaths = {
+// 				"/qtodo-h2-console/login.do",
+// 				"/qtodo-h2-console/tables.do",
+// 				"/qtodo-h2-console/query.do",
+// 				"/qtodo-h2-console/login.jsp",
+// 				"/qtodo-h2-console/header.jsp",
+// 				"/qtodo-h2-console/query.jsp",
+// 				"/qtodo-h2-console/help.jsp",
  				"/qtodo-h2-console/**",
     			"/ang/**",
     			"/proto/**",

@@ -42,7 +42,7 @@ public class UserDefinedType{
 	@ElementCollection
     @CollectionTable(name = "user_defined_data")
     @MapKeyColumn(name = "data_key")
-    @Column(name = "data_value")
+    @Column(name = "data_value", columnDefinition = "TEXT")
     Map<String, String> data;
 
 }
