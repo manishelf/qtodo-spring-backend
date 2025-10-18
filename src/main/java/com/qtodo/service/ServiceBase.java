@@ -26,10 +26,12 @@ import com.qtodo.model.UserEntity;
 import com.qtodo.model.UserGroup;
 
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Getter
 @Component
+@Log4j2 
 public class ServiceBase {
 
 	@Autowired
@@ -56,8 +58,7 @@ public class ServiceBase {
 	@Autowired
 	protected PermissionForUserInUserGroupRepo permissionRepo;
 
-	@Autowired
-	protected Logger logger;
+	protected Logger log;
 	
 	@Autowired
     AuthenticationManager authenticationManager;

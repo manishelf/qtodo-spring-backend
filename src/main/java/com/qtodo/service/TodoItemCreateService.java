@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.qtodo.auth.UserPermission;
 import com.qtodo.dto.TodoItemShareRequest;
 import com.qtodo.dto.UserDto;
 import com.qtodo.model.DocumentEntity;
@@ -82,9 +80,9 @@ public class TodoItemCreateService extends ServiceBase {
 			}
 		}catch (Exception exp) {
 			exp.printStackTrace();
-			logger.error(exp.getMessage());
+			log.error("message {}",exp.getMessage(), exp);
 			e = null;
-		}
+		} 
 		
 		return e;
 	}
