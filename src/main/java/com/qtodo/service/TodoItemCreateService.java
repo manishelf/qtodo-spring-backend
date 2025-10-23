@@ -80,7 +80,7 @@ public class TodoItemCreateService extends ServiceBase {
 			}
 		}catch (Exception exp) {
 			exp.printStackTrace();
-			log.error("message {}",exp.getMessage(), exp);
+			logger.error("message "+exp.getMessage(), exp);
 			e = null;
 		} 
 		

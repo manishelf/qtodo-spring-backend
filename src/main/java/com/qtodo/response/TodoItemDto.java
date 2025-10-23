@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.qtodo.dto.UserDto;
 import com.qtodo.model.TodoItem;
 
 import lombok.Getter;
@@ -43,6 +44,7 @@ public class TodoItemDto {
 	
 	boolean deleted;
 
+	UserDto owningUser;
 	
 
 	public TodoItemDto(TodoItem itemEntity) {
@@ -59,6 +61,8 @@ public class TodoItemDto {
 			this.eventStartDate = itemEntity.getEventStartDate();
 			this.eventEndDate = itemEntity.getEventEndDate();
 			this.deleted = itemEntity.isDeleted();
+			
+			this.owningUser = new UserDto(itemEntity.getOwningUser(), itemEntity.getOwningUserGroup());
 			
 			if(itemEntity.getUserDefined() != null)
 			this.userDefined = new UserDefinedTypeDto(itemEntity.getUserDefined());

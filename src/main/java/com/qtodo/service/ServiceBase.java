@@ -3,7 +3,8 @@ package com.qtodo.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,12 +27,10 @@ import com.qtodo.model.UserEntity;
 import com.qtodo.model.UserGroup;
 
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
 
 @Service
 @Getter
 @Component
-@Log4j2 
 public class ServiceBase {
 
 	@Autowired
@@ -58,10 +57,11 @@ public class ServiceBase {
 	@Autowired
 	protected PermissionForUserInUserGroupRepo permissionRepo;
 
-	protected Logger log;
-	
 	@Autowired
     AuthenticationManager authenticationManager;
+	
+	@Autowired
+	Logger logger = LogManager.getLogger("qtodo");
 	
 	@Value("${qtodo.app.user.doc.location}")
 	protected String fsDocUrl;

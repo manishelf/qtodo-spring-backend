@@ -27,7 +27,7 @@ public class TodoItemUpdateService extends ServiceBase {
 	TodoItemCreateService createService;
 	
 	public String update(List<TodoItemDto> forUpdateList) throws ValidationException {
-		String responseMessage = "a";
+		String responseMessage = "";
 		
 		var isColab = getAuthenticatedUsersUserGroup().isColaboration();
 		var permissions = getAuthenticatedUsersPermissions();
