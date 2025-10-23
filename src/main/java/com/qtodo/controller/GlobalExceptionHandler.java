@@ -15,7 +15,6 @@ import com.qtodo.response.ValidationException;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 	
-	@Autowired
 	Logger logger = LogManager.getLogger("Exception Handler");
 	
 	@ExceptionHandler(ValidationException.class)
@@ -27,7 +26,7 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ApiResponseBase> handleAccessDeniedException(AuthorizationDeniedException ex) {
-    	ex.printStackTrace();
+//    	ex.printStackTrace();
     	logger.error("Auth Exception", ex);
         return ApiResponseBase.asWrapped(new ApiResponseBase("Unable to process request "+ex.getMessage(), HttpStatus.FORBIDDEN));
     }

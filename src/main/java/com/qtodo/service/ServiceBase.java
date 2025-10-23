@@ -60,7 +60,6 @@ public class ServiceBase {
 	@Autowired
     AuthenticationManager authenticationManager;
 	
-	@Autowired
 	Logger logger = LogManager.getLogger("qtodo");
 	
 	@Value("${qtodo.app.user.doc.location}")
