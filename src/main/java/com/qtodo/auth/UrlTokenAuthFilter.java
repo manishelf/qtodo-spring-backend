@@ -131,7 +131,6 @@ public class UrlTokenAuthFilter extends OncePerRequestFilter {
 	            cookie.setSecure(true);
 	            cookie.setMaxAge(jwtUtils.getJwtSessionExpirationMs());
 	            cookie.setPath(request.getRequestURI().split("\\?sessionToken")[0]);
-	            //path could be set to / for swagger request to work. but the scope is too large
 	            
 	            response.addCookie(cookie);
 			}

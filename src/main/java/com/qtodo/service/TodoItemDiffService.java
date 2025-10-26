@@ -38,7 +38,7 @@ public class TodoItemDiffService extends ServiceBase {
 		String userGroupTitle = userGroup.getGroupTitle();
 		boolean isUserGroupColab = userGroup.isColaboration();
 		
-		for(var itemForDelete : itemsForMergeReq) {
+		for(var itemForDelete : itemsForDeleteReq) {
 			var item = itemRepo.findByUuid(itemForDelete.getUuid());
 			if(item.isPresent()) {
 				var ent = item.get();
@@ -83,8 +83,7 @@ public class TodoItemDiffService extends ServiceBase {
 				itemMap.put(item.getUuid(), item);
 				var itemState = new TodoItemState(item.getUuid());
 				if(!(itemsForMergeReq.contains(itemState)
-					|| itemsForDeleteReq.contains(itemState))
-				) {
+					|| itemsForDeleteReq.contains(itemState)) && !item.isDeleted()) {
 					itemsForAdd.add(new TodoItemDto(item));
 				}
 			}

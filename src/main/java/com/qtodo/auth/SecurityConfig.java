@@ -74,10 +74,9 @@ public class SecurityConfig {
     @Order(1)
     SecurityFilterChain urlTokenSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-             // This filter only applies to H2 console and checks if any refresh token available
         	.csrf(csrf -> csrf.disable())
         	.securityMatcher("/qtodo-h2-console/**","/swagger-ui/**", "/v3/api-docs/**", "/ws/**" , "/item/doc/**"
-        			) // h2 uses java serverlets which I cant intercept 
+        			)
             .authorizeHttpRequests(authorize -> authorize
                     .anyRequest().authenticated()
                 )
@@ -101,6 +100,7 @@ public class SecurityConfig {
             		.requestMatchers(allowPaths).permitAll()
                     .anyRequest().authenticated()
                 )
+//            .addFilterBefore(urlAuthFilter, UsernamePasswordAuthenticationFilter.class) // this works for swagger but breaks H2
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)                    
             .authenticationProvider(authenticationProvider())       
             .sessionManagement(session -> session
