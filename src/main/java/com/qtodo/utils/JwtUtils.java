@@ -1,5 +1,6 @@
 package com.qtodo.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
 
@@ -29,15 +31,23 @@ import lombok.Getter;
 @Getter
 public class JwtUtils {
 
-	SecretKey key = Jwts.SIG.HS256.key().build();
-
 	@Value("${qtodo.app.jwtSessionExpirationMs}")
 	int jwtSessionExpirationMs;
 
 	@Value("${qtodo.app.jwtRefreshExpirationMs}")
 	long jwtRefreshExpirationMs;
+	
+	SecretKey key;
 
 	static List<UserPermission> genericPermissions = List.of(UserPermission.READ); 
+	
+	public JwtUtils(@Value("${qtodo.app.jwtSecret:none}") String secret) {
+		if(!"none".equals(secret)) {
+			this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+		}else {
+			this.key = Jwts.SIG.HS256.key().build();
+		}
+	}
 	
 	public TokenResponse generateTokenForUser(UserDto userDetails, Map<String,Object> claims) {
 		
