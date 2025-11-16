@@ -94,12 +94,13 @@ public class TodoItemGetService extends ServiceBase{
 	
 	public DocumentDto getDocument(String refUrl) throws ValidationException {
 		DocumentDto dto = new DocumentDto();
-		var doc = docRepo.findByRefUrl("/"+refUrl);
+		System.out.println(refUrl);
+		var doc = docRepo.findByRefUrl(refUrl);
 		if(doc.isPresent()) {
 			var docEnt = doc.get();
 //			if(docEnt.getOwningUser().getEmail().equals(getAuthenticatedUser().getEmail())) { 
 				var ext = docEnt.getDataType().split("/")[1];
-				Path path = Paths.get(getFsDocUrl()).resolve(refUrl+'.'+ext).normalize();
+				Path path = Paths.get(getFsDocRootUrl()).resolve(refUrl.substring(1)+'.'+ext).normalize();
 				try {
 					dto.setData(new UrlResource(path.toUri()));
 					dto.setInfo(docEnt.getInfo());

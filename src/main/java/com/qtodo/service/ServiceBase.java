@@ -60,10 +60,10 @@ public class ServiceBase {
 	@Autowired
     AuthenticationManager authenticationManager;
 	
-	Logger logger = LogManager.getLogger("qtodo");
+	protected Logger logger = LogManager.getLogger("com.qtodo.service");
 	
 	@Value("${qtodo.app.user.doc.location}")
-	protected String fsDocUrl;
+	protected String fsDocRootUrl;
 	
 		
 	public UserEntity getAuthenticatedUser() {

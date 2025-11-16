@@ -128,18 +128,24 @@ public class TodoItemCreateService extends ServiceBase {
 
 	public String saveUserDoc(MultipartFile docSaveRequest, String fileType, String fileInfo, String fileName) throws ValidationException {
 		try {
-            Files.createDirectories(Paths.get(getFsDocUrl()));
-            
+
             String email = getAuthenticatedUser().getEmail();
             String userGroup = getAuthenticatedUsersUserGroup().getGroupTitle();
-            fileName = userGroup+"_"+email.replace(".", "_").replace("@", "_")+"_"+fileName;
+            
+			String rootUrl = getFsDocRootUrl();
+			String ugFolder = userGroup;
+			String userFolder = email.replaceAll("[.@]", "_");
+			String docStorePath = rootUrl+"/"+ugFolder+"/"+userFolder;
+			
+            Files.createDirectories(Paths.get(docStorePath));
+            
             String[] extension = fileType.split("/");
             if(extension.length!=2) {
             	extension = new String[2];
             	extension[1]="file";
             }
             Files.copy(docSaveRequest.getInputStream(), 
-                       Paths.get(getFsDocUrl()).resolve(fileName+'.'+extension[1]), 
+                       Paths.get(docStorePath).resolve(fileName+'.'+extension[1]), 
                        StandardCopyOption.REPLACE_EXISTING);
             
             var de = docRepo.findByRefUrl(fileName);
@@ -147,7 +153,7 @@ public class TodoItemCreateService extends ServiceBase {
 	            DocumentEntity docEntity = new DocumentEntity();
 	            docEntity.setDataType(fileType);
 	            docEntity.setInfo(fileInfo);
-	            docEntity.setRefUrl("/"+fileName);
+	            docEntity.setRefUrl("/"+ugFolder+"/"+userFolder+"/"+fileName);
             	
             	var ue = userRepo.getByEmailInUserGroup(email, userGroup);
             	var ug = getAuthenticatedUsersUserGroup();

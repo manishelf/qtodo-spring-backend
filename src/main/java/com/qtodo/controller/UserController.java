@@ -36,7 +36,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/user")
-public class UserController {
+public class UserController{
 	
 	@Autowired
 	UserAuthService userAuthService;
