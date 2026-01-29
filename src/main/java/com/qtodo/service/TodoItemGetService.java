@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -94,13 +95,30 @@ public class TodoItemGetService extends ServiceBase{
 	
 	public DocumentDto getDocument(String refUrl) throws ValidationException {
 		DocumentDto dto = new DocumentDto();
-		System.out.println(refUrl);
+		
+		String fsRoot = getFsDocRootUrl();
+		boolean getFromDb = (fsRoot == null || fsRoot.trim().isEmpty() || fsRoot.equalsIgnoreCase("IN-DB"));
+		if(getFromDb) {
+			refUrl = "/db"+refUrl;
+		}
 		var doc = docRepo.findByRefUrl(refUrl);
+		
 		if(doc.isPresent()) {
 			var docEnt = doc.get();
 //			if(docEnt.getOwningUser().getEmail().equals(getAuthenticatedUser().getEmail())) { 
+				// If no filesystem root configured or the file is stored in DB, return blob
+				if(getFromDb) {
+					if(docEnt.getContent() == null) {
+						throw ValidationException.failedFor("document", "file - "+refUrl+" not found");
+					}
+					dto.setData(new ByteArrayResource(docEnt.getContent()));
+					dto.setInfo(docEnt.getInfo());
+					dto.setDataType(docEnt.getDataType());
+					return dto;
+				}
+
 				var ext = docEnt.getDataType().split("/")[1];
-				Path path = Paths.get(getFsDocRootUrl()).resolve(refUrl.substring(1)+'.'+ext).normalize();
+				Path path = Paths.get(fsRoot).resolve(refUrl.substring(1)+'.'+ext).normalize();
 				try {
 					dto.setData(new UrlResource(path.toUri()));
 					dto.setInfo(docEnt.getInfo());

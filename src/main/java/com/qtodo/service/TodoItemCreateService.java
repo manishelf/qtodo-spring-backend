@@ -131,44 +131,53 @@ public class TodoItemCreateService extends ServiceBase {
 
             String email = getAuthenticatedUser().getEmail();
             String userGroup = getAuthenticatedUsersUserGroup().getGroupTitle();
-            
+
 			String rootUrl = getFsDocRootUrl();
 			String ugFolder = userGroup;
 			String userFolder = email.replaceAll("[.@]", "_");
-			String docStorePath = rootUrl+"/"+ugFolder+"/"+userFolder;
 			
-            Files.createDirectories(Paths.get(docStorePath));
-            
-            String[] extension = fileType.split("/");
-            if(extension.length!=2) {
-            	extension = new String[2];
-            	extension[1]="file";
-            }
-            Files.copy(docSaveRequest.getInputStream(), 
-                       Paths.get(docStorePath).resolve(fileName+'.'+extension[1]), 
-                       StandardCopyOption.REPLACE_EXISTING);
-            
-            var de = docRepo.findByRefUrl(fileName);
-            if(de.isEmpty()) {
-	            DocumentEntity docEntity = new DocumentEntity();
-	            docEntity.setDataType(fileType);
-	            docEntity.setInfo(fileInfo);
-	            docEntity.setRefUrl("/"+ugFolder+"/"+userFolder+"/"+fileName);
-            	
-            	var ue = userRepo.getByEmailInUserGroup(email, userGroup);
-            	var ug = getAuthenticatedUsersUserGroup();
-            	
-            	docEntity.setOwningUser(ue);
-            	docEntity.setOwningUserGroup(ug);
-            	docRepo.save(docEntity);
-            	
-            	ue.getDocs().add(docEntity);
-            	
-            	return fileName;
-            }
-            
-            
-            return de.get().getRefUrl();
+			
+			var de = docRepo.findByRefUrl("/"+ugFolder+"/"+userFolder+"/"+fileName);
+			if(de.isEmpty()) {
+					DocumentEntity docEntity = new DocumentEntity();
+					docEntity.setDataType(fileType);
+					docEntity.setInfo(fileInfo);
+					docEntity.setRefUrl("/"+ugFolder+"/"+userFolder+"/"+fileName);
+
+					var ue = userRepo.getByEmailInUserGroup(email, userGroup);
+					var ug = getAuthenticatedUsersUserGroup();
+
+					docEntity.setOwningUser(ue);
+					docEntity.setOwningUserGroup(ug);
+					docRepo.save(docEntity);
+						
+					ue.getDocs().add(docEntity);
+					
+					de = Optional.of(docEntity);
+			}
+
+			if(rootUrl == null || rootUrl.trim().isEmpty() || rootUrl.equalsIgnoreCase("IN-DB")) {
+				byte[] bytes = docSaveRequest.getBytes();
+				de.get().setContent(bytes);
+				de.get().setRefUrl("/db"+de.get().getRefUrl());
+				return de.get().getRefUrl();
+			}
+			
+			String docStorePath = rootUrl+"/"+ugFolder+"/"+userFolder;
+
+			Files.createDirectories(Paths.get(docStorePath));
+
+			String[] extension = fileType.split("/");
+			if(extension.length!=2) {
+				extension = new String[2];
+				extension[1]="file";
+			}
+			
+			Files.copy(docSaveRequest.getInputStream(), 
+					   Paths.get(docStorePath).resolve(fileName+'.'+extension[1]), 
+					   StandardCopyOption.REPLACE_EXISTING);
+
+			return de.get().getRefUrl();
         } catch (IOException e) {
             e.printStackTrace();
             throw ValidationException.failedFor("document", "failed to save "+fileName);

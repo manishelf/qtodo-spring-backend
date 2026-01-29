@@ -3,6 +3,7 @@ package com.qtodo.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Lob;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +18,10 @@ public class DocumentEntity extends EntityBase{
 	String info;
 	
 	String dataType;
+
+	@Lob
+	@Column(columnDefinition = "BLOB")
+	byte[] content;
 	
 	@ManyToOne
 	UserEntity owningUser;
